@@ -109,15 +109,17 @@ public class Solution {
      * @return значения целевой функции для начального решения
      */
     public int getF_basic() {
+        // если значение уже вычеслено
         if (F_basic != null) {
             return F_basic;
         }
+        // если начальное решение ещё не построено
         if (m_route_basic == null) {
             getM_route_basic();
         }
 
         F_basic = 0;
-        for (List<Integer> H : m_route_basic) {
+        for (List<Integer> H : m_route_basic) { // суммируем все рёбра во всех H
             for (int i = 0; i < H.size() - 1; i++) {
                 F_basic += task.getD()[H.get(i)][H.get(i + 1)];
             }
@@ -130,15 +132,17 @@ public class Solution {
      * @return значения целевой функции для улучшенного начального решения
      */
     public int getF_advanced() {
+        // если значение уже вычеслено
         if (F_advanced != null) {
             return F_advanced;
         }
+        // если начальное решение ещё не построено
         if (m_route_advanced == null) {
             getM_route_advanced();
         }
 
         F_advanced = 0;
-        for (List<Integer> H : m_route_advanced) {
+        for (List<Integer> H : m_route_advanced) { // суммируем все рёбра во всех H
             for (int i = 0; i < H.size() - 1; i++) {
                 F_advanced += task.getD()[H.get(i)][H.get(i + 1)];
             }
