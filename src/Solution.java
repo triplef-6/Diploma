@@ -4,8 +4,10 @@ public class Solution {
     private final Task task; // задача
     private List<List<Integer>> m_route_basic; // m-маршрут (начальное решение)
     private List<List<Integer>> m_route_advanced; // m-маршрут (улучшенное жадным алгоритмом)
+    private List<List<Integer>> m_route_final; // m-маршрут (начальное решение + алгоритм улучшения)   
     private Integer F_basic; // значение целевой функции для начального решения
     private Integer F_advanced; // значение целевой функции для улучшенного начального решения
+    private Integer F_final; // значение целевой функции (начальное решение + алгоритм улучшения)   
 
     public Solution(Task task) {
         this.task = task;
@@ -118,13 +120,7 @@ public class Solution {
             getM_route_basic();
         }
 
-        F_basic = 0;
-        for (List<Integer> H : m_route_basic) { // суммируем все рёбра во всех H
-            for (int i = 0; i < H.size() - 1; i++) {
-                F_basic += task.getD()[H.get(i)][H.get(i + 1)];
-            }
-        }
-
+        F_basic = F(m_route_basic);
         return F_basic;
     }
 
@@ -141,35 +137,98 @@ public class Solution {
             getM_route_advanced();
         }
 
-        F_advanced = 0;
-        for (List<Integer> H : m_route_advanced) { // суммируем все рёбра во всех H
-            for (int i = 0; i < H.size() - 1; i++) {
-                F_advanced += task.getD()[H.get(i)][H.get(i + 1)];
+        F_advanced = F(m_route_advanced);
+        return F_advanced;
+    }
+
+    /**
+     * @param if_we_get_advanced true - если мы будем строить от улучшенного начального решения, false - если от базового 
+     * @return финальное решение
+     */
+    public List<List<Integer>> getM_route_final(boolean if_we_get_advanced) {
+        // если финальное решение уже построенно
+        if (m_route_final != null) {
+            return m_route_final;
+        }
+        // если мы выбрали улучшенное решение
+        if (if_we_get_advanced) {
+            if (m_route_advanced == null) {
+                getM_route_advanced();
+            }
+        } else { // если мы выбрали базавое решение
+            if (m_route_basic == null) {
+                getM_route_basic();
             }
         }
 
-        return F_advanced;
+        m_route_final = new ArrayList<>();
+        // здесь будет логика построения
+
+
+
+
+        return m_route_final;
+    }
+
+    /**
+     * @return значение целевой функции для финального решения, null - если оно ещё не построено
+     */
+    public Integer getF_final() {
+        // если значение уже вычеслено
+        if (F_final != null) {
+            return F_final ;
+        }
+        // если начальное решение ещё не построено
+        if (m_route_final == null) {
+            return null;
+        }
+
+        F_final  = F(m_route_final);
+        return F_final;
+    }
+
+    /**
+     * вычисленияе значения целевой функции
+     * @param m_route m-маршрут
+     * @return значение целевой функции
+     */
+    private int F(List<List<Integer>> m_route) {
+        int F = 0;
+        for (List<Integer> H : m_route) { // суммируем все рёбра во всех H
+            for (int i = 0; i < H.size() - 1; i++) {
+                F += task.getD()[H.get(i)][H.get(i + 1)];
+            }
+        }
+        return F;
     }
 
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
 
+        str.append(">M route basic:\n");
+        int k = 0;
         for (List<Integer> H : getM_route_basic()) {
+            str.append(">>").append(k).append("->");
             for (Integer i : H) {
                 str.append(i).append("-");
             }
             str.append("\n");
+            k++;
         }
-        str.append("F_b = ").append(getF_basic()).append("\n");
+        str.append(">>>F(basic) = ").append(getF_basic()).append("\n\n");
 
+        str.append(">M route advanced:\n");
+        k = 0;
         for (List<Integer> H : getM_route_advanced()) {
+            str.append(">>").append(k).append("->");
             for (Integer i : H) {
                 str.append(i).append("-");
             }
             str.append("\n");
+            k++;
         }
-        str.append(getF_advanced());
+        str.append(">>>F(advanced) = ").append(getF_advanced()).append("\n\n");
 
         return str.toString();
     }

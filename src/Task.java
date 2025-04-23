@@ -96,9 +96,10 @@ public class Task {
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append("n = ").append(n - 1).append("\n");
-
-        str.append("D:{\n");
+        str.append("<n->").append(n - 1).append("\n");
+        str.append("<m->").append(m).append("\n");
+        str.append("<r->").append(r).append("\n");
+        str.append("<D->{\n");
         for (int[] _d : D) {
             str.append("{");
             for (int d : _d) {
@@ -112,14 +113,12 @@ public class Task {
         }
         str.append("}\n");
 
-        str.append("C:{");
+        str.append("<C->{");
         for (int c : C) {
             str.append(c).append(", ");
         }
         str.append("}\n");
 
-        str.append("m = ").append(m).append("\n");
-        str.append("r = ").append(r).append("\n");
 
         return str.toString();
     }
