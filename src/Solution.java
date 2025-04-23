@@ -152,18 +152,71 @@ public class Solution {
         }
         // если мы выбрали улучшенное решение
         if (if_we_get_advanced) {
-            if (m_route_advanced == null) {
-                getM_route_advanced();
-            }
+            m_route_final = getM_route_advanced();
         } else { // если мы выбрали базовое решение
-            if (m_route_basic == null) {
-                getM_route_basic();
-            }
+            m_route_final = getM_route_basic();
         }
 
-        m_route_final = new ArrayList<>();
         // здесь будет логика построения
+        for (int e = 0; e < 2; e++) { // пока 2 повтора
+            // найти 3 самых тяжёлых ребра
+            int[] H_i = new int[3];
+            int[] u_i = new int[3];
+            int[] v_i = new int[3];
+            int[] d_u_v_i = new int[3];
+            for (int k = 0; k < 3; k++) {
+                d_u_v_i[k] = 0;
+            }
 
+            for (int i = 0; i < m_route_final.size(); i++) {
+                List<Integer> H = m_route_final.get(i);
+                for (int j = 1; j < H.size() - 2; j++) {
+                    int d_u_v = task.getD()[H.get(j)][H.get(j + 1)];
+                    for (int k = 0; k < 3; k++) {
+                        if (d_u_v > d_u_v_i[k]) {
+                            d_u_v_i[k] = d_u_v;
+                            u_i[k] = j;
+                            v_i[k] = j + 1;
+                            H_i[k] = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            // поиск допустимых рёбер
+            int[] sum_Hi = new int[6];
+            for (int i = 0; i < 3; i++) {
+                sum_Hi[i] = 0;
+                int k = 1;
+                do {
+                    sum_Hi[i] += task.getC()[m_route_final.get(H_i[i]).get(k)];
+                    k++;
+                } while (m_route_final.get(H_i[i]).get(k) != u_i[i]);
+
+                sum_Hi[i + 3] = 0;
+                k = m_route_final.get(H_i[i]).size() - 2;
+                do {
+                    sum_Hi[i + 3] += task.getC()[m_route_final.get(H_i[i]).get(k)];
+                    k--;
+                } while (m_route_final.get(H_i[i]).get(k) != v_i[i]);
+            }
+
+            boolean[][] admissibility = new boolean[6][6];
+            for (int i = 0; i < 6; i++) {
+                for (int j = 0; j < 6; j++) {
+                   if (i == j || sum_Hi[i] + sum_Hi[j] <= task.getR()) {
+                       admissibility[i][j] = true;
+                   } else {
+                       admissibility[i][j] = false;
+                   }
+                }
+            }
+            // сравнение рёбер
+
+            // замена
+
+
+        }
 
 
 
