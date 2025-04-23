@@ -111,7 +111,7 @@ public class Solution {
      * @return значения целевой функции для начального решения
      */
     public int getF_basic() {
-        // если значение уже вычеслено
+        // если значение уже вычислено
         if (F_basic != null) {
             return F_basic;
         }
@@ -128,7 +128,7 @@ public class Solution {
      * @return значения целевой функции для улучшенного начального решения
      */
     public int getF_advanced() {
-        // если значение уже вычеслено
+        // если значение уже вычислено
         if (F_advanced != null) {
             return F_advanced;
         }
@@ -146,7 +146,7 @@ public class Solution {
      * @return финальное решение
      */
     public List<List<Integer>> getM_route_final(boolean if_we_get_advanced) {
-        // если финальное решение уже построенно
+        // если финальное решение уже построено
         if (m_route_final != null) {
             return m_route_final;
         }
@@ -155,7 +155,7 @@ public class Solution {
             if (m_route_advanced == null) {
                 getM_route_advanced();
             }
-        } else { // если мы выбрали базавое решение
+        } else { // если мы выбрали базовое решение
             if (m_route_basic == null) {
                 getM_route_basic();
             }
@@ -174,7 +174,7 @@ public class Solution {
      * @return значение целевой функции для финального решения, null - если оно ещё не построено
      */
     public Integer getF_final() {
-        // если значение уже вычеслено
+        // если значение уже вычислено
         if (F_final != null) {
             return F_final ;
         }
@@ -188,7 +188,7 @@ public class Solution {
     }
 
     /**
-     * вычисленияе значения целевой функции
+     * Вычисление значения целевой функции
      * @param m_route m-маршрут
      * @return значение целевой функции
      */
@@ -230,6 +230,19 @@ public class Solution {
         }
         str.append(">>>F(advanced) = ").append(getF_advanced()).append("\n\n");
 
+        if (m_route_final != null) {
+            str.append(">M route final:\n");
+            k = 0;
+            for (List<Integer> H : m_route_final) {
+                str.append(">>").append(k).append("->");
+                for (Integer i : H) {
+                    str.append(i).append("-");
+                }
+                str.append("\n");
+                k++;
+            }
+            str.append(">>>F(final) = ").append(getF_final()).append("\n\n");
+        }
         return str.toString();
     }
 }
