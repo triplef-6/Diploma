@@ -160,45 +160,60 @@ public class Solution {
         // здесь будет логика построения
         for (int e = 0; e < 2; e++) { // пока 2 повтора
             // найти 3 самых тяжёлых ребра
-            int[] H_i = new int[3];
-            int[] u_i = new int[3];
-            int[] v_i = new int[3];
-            int[] d_u_v_i = new int[3];
-            for (int k = 0; k < 3; k++) {
+            int[] H_i = new int[3]; // 3 хвоста
+            // int[] u_i = new int[3]; // 3 "верхние" вершины
+            int[] v_i = new int[6]; // 3 "нижние" вершины
+
+            int[] d_u_v_i = new int[3]; // 3 самых тяжёлых ребра
+            for (int k = 0; k < 3; k++) { // изначально они равны 0
                 d_u_v_i[k] = 0;
             }
-
-            for (int i = 0; i < m_route_final.size(); i++) {
+/*
+здесь ошибка
+ */
+            for (int i = 0; i < m_route_final.size(); i++) { // ищем самые тяжёлые рёбра среди всех H в маршруте
                 List<Integer> H = m_route_final.get(i);
-                for (int j = 1; j < H.size() - 2; j++) {
+                for (int j = 1; j < H.size() - 2; j++) { // ищем ребро в H
                     int d_u_v = task.getD()[H.get(j)][H.get(j + 1)];
                     for (int k = 0; k < 3; k++) {
                         if (d_u_v > d_u_v_i[k]) {
                             d_u_v_i[k] = d_u_v;
-                            u_i[k] = j;
-                            v_i[k] = j + 1;
+                            v_i[k] = j;
+                            v_i[k + 3] = j + 1;
                             H_i[k] = i;
                             break;
                         }
                     }
                 }
             }
-            // поиск допустимых рёбер
+            // поиск допустимых рёбер и построение хвостов
+            List<List<Integer>> H_i_new = new ArrayList<>();
             int[] sum_Hi = new int[6];
             for (int i = 0; i < 3; i++) {
+                List<Integer> H_u_new = new ArrayList<>();
                 sum_Hi[i] = 0;
                 int k = 1;
                 do {
                     sum_Hi[i] += task.getC()[m_route_final.get(H_i[i]).get(k)];
+                    H_u_new.add(m_route_final.get(H_i[i]).get(k));
                     k++;
-                } while (m_route_final.get(H_i[i]).get(k) != u_i[i]);
+                } while (m_route_final.get(H_i[i]).get(k) != v_i[i]);
 
+                H_i_new.add(H_u_new);
+            }
+
+            for (int i = 0; i < 3; i++) {
+                List<Integer> H_v_new = new ArrayList<>();
                 sum_Hi[i + 3] = 0;
-                k = m_route_final.get(H_i[i]).size() - 2;
+                int k = m_route_final.get(H_i[i]).size() - 2;
                 do {
                     sum_Hi[i + 3] += task.getC()[m_route_final.get(H_i[i]).get(k)];
+                    H_v_new.add(m_route_final.get(H_i[i]).get(k));
                     k--;
-                } while (m_route_final.get(H_i[i]).get(k) != v_i[i]);
+                } while (m_route_final.get(H_i[i]).get(k) != v_i[i + 3]);
+
+                Collections.reverse(H_v_new);
+                H_i_new.add(H_v_new);
             }
 
             boolean[][] admissibility = new boolean[6][6];
@@ -211,15 +226,66 @@ public class Solution {
                    }
                 }
             }
+            // отделение недопустимых рёбер
             // сравнение рёбер
+            int[][] triplets = {
+                    { 0, 3, 1, 4, 2, 5 },
+                    { 0, 3, 1, 5, 2, 4 },
+                    { 0, 3, 1, 2, 4, 5 },
+
+                    { 0, 4, 1, 3, 2, 5 },
+                    { 0, 5, 1, 3, 2, 4 },
+                    { 0, 2, 1, 3, 4, 5 },
+
+                    { 0, 1, 4, 5, 2, 3 },
+                    { 0, 5, 1, 4, 2, 3 },
+                    { 0, 4, 1, 5, 2, 3 },
+
+                    { 0, 4, 1, 2, 3, 5 },
+                    { 0, 1, 2, 4, 3, 5 },
+                    { 0, 2, 1, 4, 3, 5 },
+
+                    { 0, 5, 1, 2, 3, 4 },
+                    { 0, 1, 2, 5, 3, 4 },
+                    { 0, 2, 1, 5, 3, 4 },
+            };
+
+            int min_sum_triple = Integer.MAX_VALUE;
+            int min_triple = 0;
+            for (int i = 0; i < 15; i++) {
+                if (admissibility[triplets[i][0]][triplets[i][1]] && 
+                        admissibility[triplets[i][2]][triplets[i][3]] && 
+                        admissibility[triplets[i][4]][triplets[i][5]]) {
+                    int sum_triple = task.getD()[triplets[i][0]][triplets[i][1]] +
+                            task.getD()[triplets[i][2]][triplets[i][3]] +
+                            task.getD()[triplets[i][4]][triplets[i][5]];
+                    if (min_sum_triple > sum_triple) {
+                        min_sum_triple = sum_triple;
+                        min_triple = i;
+                    }
+                }
+            }
 
             // замена
+            if (min_triple != 0) {
+                List<Integer> H1_new = new ArrayList<>(H_i_new.get(triplets[min_triple][0]));
+                H1_new.addAll(H_i_new.get(triplets[min_triple][1]));
 
+                List<Integer> H2_new = new ArrayList<>(H_i_new.get(triplets[min_triple][2]));
+                H2_new.addAll(H_i_new.get(triplets[min_triple][3]));
 
+                List<Integer> H3_new = new ArrayList<>(H_i_new.get(triplets[min_triple][4]));
+                H3_new.addAll(H_i_new.get(triplets[min_triple][5]));
+                
+                m_route_final.remove(H_i[0]);
+                m_route_final.remove(H_i[1]);
+                m_route_final.remove(H_i[2]);
+
+                m_route_final.add(H1_new);
+                m_route_final.add(H2_new);
+                m_route_final.add(H3_new);
+            }
         }
-
-
-
         return m_route_final;
     }
 
