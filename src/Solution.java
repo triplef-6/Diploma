@@ -72,73 +72,13 @@ public class Solution {
         if (m_route_basic == null) {
             getM_route_basic();
         }
-        m_route_advanced = new ArrayList<>();
 
+        m_route_advanced  = new ArrayList<>();
         for (List<Integer> H : m_route_basic) { // проходимся по каждой петле
-            // создаём новую петлю из тех-же вершин (только без базы)
-            List<Integer> H_ = new ArrayList<>(H); // множество вершин в петле
-            H_.removeIf(i -> i.equals(0));
-            H_.removeIf(i -> i.equals(0));
-            List<Integer> H_new = new ArrayList<>(); // улучшенная петля
-
-            H_new.add(0); // добавляем базу в начало петли
-
-            Integer j = 0; // начинаем с базы
-            do { // работаем пока не обойдём все вершины в петле
-                int min_D = Integer.MAX_VALUE;
-                for (Integer i : H_) { // ищем минимальное ребро ji в петле
-                    if (i != j && task.getD()[i][j] < min_D) {
-                        min_D = task.getD()[j][i];
-                        j = i;
-                    }
-                }
-
-                H_new.add(j); // добавляем вершину ребра ji
-
-                Integer finalJ = j;
-                H_.removeIf(i -> i.equals(finalJ)); // удаляем найденную вершину
-            } while (!H_.isEmpty());
-
-            H_new.add(0); // добавляем базу в конец петли
-
-            m_route_advanced.add(H_new); // добавляем петлю в m-маршрут
+            m_route_advanced.add(greedy_Algorithm(H));
         }
 
         return m_route_advanced;
-    }
-
-    /**
-     * @return значения целевой функции для начального решения
-     */
-    public int getF_basic() {
-        // если значение уже вычислено
-        if (F_basic != null) {
-            return F_basic;
-        }
-        // если начальное решение ещё не построено
-        if (m_route_basic == null) {
-            getM_route_basic();
-        }
-
-        F_basic = F(m_route_basic);
-        return F_basic;
-    }
-
-    /**
-     * @return значения целевой функции для улучшенного начального решения
-     */
-    public int getF_advanced() {
-        // если значение уже вычислено
-        if (F_advanced != null) {
-            return F_advanced;
-        }
-        // если начальное решение ещё не построено
-        if (m_route_advanced == null) {
-            getM_route_advanced();
-        }
-
-        F_advanced = F(m_route_advanced);
-        return F_advanced;
     }
 
     /**
@@ -287,6 +227,74 @@ public class Solution {
             }
         }
         return m_route_final;
+    }
+
+    /**
+     * улучшение петли жадным алгоритмом
+     * @param H петля
+     * @return улучшенная петля
+     */
+    private List<Integer> greedy_Algorithm(List<Integer> H) {
+        // создаём новую петлю из тех-же вершин (только без базы)
+        List<Integer> H_ = new ArrayList<>(H); // множество вершин в петле
+        H_.removeIf(i -> i.equals(0));
+        H_.removeIf(i -> i.equals(0));
+        List<Integer> H_new = new ArrayList<>(); // улучшенная петля
+
+        H_new.add(0); // добавляем базу в начало петли
+
+        Integer j = 0; // начинаем с базы
+        do { // работаем пока не обойдём все вершины в петле
+            int min_D = Integer.MAX_VALUE;
+            for (Integer i : H_) { // ищем минимальное ребро ji в петле
+                if (i != j && task.getD()[i][j] < min_D) {
+                    min_D = task.getD()[j][i];
+                    j = i;
+                }
+            }
+
+            H_new.add(j); // добавляем вершину ребра ji
+
+            Integer finalJ = j;
+            H_.removeIf(i -> i.equals(finalJ)); // удаляем найденную вершину
+        } while (!H_.isEmpty());
+
+        H_new.add(0); // добавляем базу в конец петли
+
+        return H;
+    }
+    /**
+     * @return значения целевой функции для начального решения
+     */
+    public int getF_basic() {
+        // если значение уже вычислено
+        if (F_basic != null) {
+            return F_basic;
+        }
+        // если начальное решение ещё не построено
+        if (m_route_basic == null) {
+            getM_route_basic();
+        }
+
+        F_basic = F(m_route_basic);
+        return F_basic;
+    }
+
+    /**
+     * @return значения целевой функции для улучшенного начального решения
+     */
+    public int getF_advanced() {
+        // если значение уже вычислено
+        if (F_advanced != null) {
+            return F_advanced;
+        }
+        // если начальное решение ещё не построено
+        if (m_route_advanced == null) {
+            getM_route_advanced();
+        }
+
+        F_advanced = F(m_route_advanced);
+        return F_advanced;
     }
 
     /**
