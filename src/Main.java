@@ -4,8 +4,7 @@ public class Main {
         Solution solution = new Solution(task0);
 
         System.out.println(task0);
-        System.out.println(solution);
-        solution.getM_route_final(false);
+        solution.getM_route_final(true);
         System.out.println(solution);
     }
 }
