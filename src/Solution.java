@@ -108,24 +108,36 @@ public class Solution {
             for (int k = 0; k < 3; k++) { // изначально они равны 0
                 d_u_v_i[k] = 0;
             }
-/*
-здесь ошибка
- */
-            for (int i = 0; i < m_route_final.size(); i++) { // ищем самые тяжёлые рёбра среди всех H в маршруте
+            TreeMap<Integer, Integer> heavy_d = new TreeMap<>(Collections.reverseOrder()); // список самый тяжёлых рёбер в каждой H
+            for (int i = 0; i < m_route_final.size(); i++) { // ищем самые тяжёлые рёбра в каждом H в маршруте
                 List<Integer> H = m_route_final.get(i);
+                int d_u_v = 0;
                 for (int j = 1; j < H.size() - 2; j++) { // ищем ребро в H
-                    int d_u_v = task.getD()[H.get(j)][H.get(j + 1)];
-                    for (int k = 0; k < 3; k++) {
-                        if (d_u_v > d_u_v_i[k]) {
-                            d_u_v_i[k] = d_u_v;
-                            v_i[k] = j;
-                            v_i[k + 3] = j + 1;
-                            H_i[k] = i;
-                            break;
-                        }
+                    if (d_u_v < task.getD()[H.get(j)][H.get(j + 1)]) {
+                        d_u_v = task.getD()[H.get(j)][H.get(j + 1)];
                     }
                 }
+                heavy_d.put(d_u_v, i);
             }
+
+            int count = 0;
+            for (Map.Entry<Integer, Integer> d : heavy_d.entrySet()) {
+                if (count == 3) {
+                    break;
+                }
+                d_u_v_i[count] = d.getKey();
+                H_i[count] = d.getValue();
+                for (int j = 1; j < m_route_final.get(H_i[count]).size() - 2; j++) {
+                    if (d_u_v_i[count] == task.getD()[m_route_final.get(H_i[count]).get(j)][m_route_final.get(H_i[count]).get(j + 1)]) {
+                        v_i[count] = j;
+                        v_i[count + 3] = j + 1;
+                        break;
+                    }
+                }
+                count++;
+            }
+
+
             // поиск допустимых рёбер и построение хвостов
             List<List<Integer>> H_i_new = new ArrayList<>();
             int[] sum_Hi = new int[6];
@@ -230,7 +242,7 @@ public class Solution {
     }
 
     /**
-     * улучшение петли жадным алгоритмом
+     * Улучшение петли жадным алгоритмом
      * @param H петля
      * @return улучшенная петля
      */
