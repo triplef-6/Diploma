@@ -83,10 +83,11 @@ public class Solution {
     }
 
     /**
+     * @param epsilon до какого придела улучшаем
      * @param if_we_get_advanced true - если мы будем строить от улучшенного начального решения, false - если от базового 
      * @return финальное решение
      */
-    public List<List<Integer>> getM_route_final(boolean if_we_get_advanced) {
+    public List<List<Integer>> getM_route_final(double epsilon, boolean if_we_get_advanced) {
         // если финальное решение уже построено
         if (m_route_final != null) {
             return m_route_final;
@@ -100,8 +101,8 @@ public class Solution {
 
         // здесь будет логика построения
         List<Integer> stop_H = new ArrayList<>(); // стоп лист для петель
-//        do {
-        for (int e = 0; e < 100; e++) { // пока 2 повтора
+        int improvement = 0; // на сколько мы улучшаем финальный результат
+        do {
             // найти 3 самых тяжёлых ребра
             int[] H_with_the_heaviest_d = new int[3]; // 3 петли с самыми тяжёлыми рёбрами
             int[] v_i = new int[6]; // 6 вершин между которыми мы будем строить рёбра
@@ -137,10 +138,6 @@ public class Solution {
                     H_with_the_heaviest_d[k] = H.getKey(); // петля с этим ребром
                     v_i[k] = H.getValue().getV(); // верхняя вершина
                     v_i[k + 3] = H.getValue().getU(); // нижняя вершина
-
-                    // логи
-                    System.out.println(":v[" + k + "] " +v_i[k]);
-                    System.out.println(":v[" + (k + 3) + "] " +v_i[k + 3]);
 
                     k++; // счётчик
 //                }
@@ -220,7 +217,26 @@ public class Solution {
                     {0, 2, 1, 5, 3, 4},
             }; // таблица возможных троек
 
-            int min_triple = getMinTriple(admissibility, triplets); // поиск минимальной тройки
+            int min_sum_triple = Integer.MAX_VALUE;
+            int min_triple = 0;
+            for (int i = 0; i < 15; i++) {
+                if (admissibility[triplets[i][0]][triplets[i][1]] &&
+                        admissibility[triplets[i][2]][triplets[i][3]] &&
+                        admissibility[triplets[i][4]][triplets[i][5]]) {
+                    int sum_triple = task.getD()[triplets[i][0]][triplets[i][1]] +
+                            task.getD()[triplets[i][2]][triplets[i][3]] +
+                            task.getD()[triplets[i][4]][triplets[i][5]];
+                    if (i == 0) {
+                        improvement = sum_triple;
+                        System.out.println(":0 sum triple: " + sum_triple);
+                    }
+                    if (min_sum_triple > sum_triple) {
+                        min_sum_triple = sum_triple;
+                        min_triple = i;
+                    }
+                }
+            }
+            improvement -= min_sum_triple;
             System.out.println(":min triple " + min_triple);
 
             // замена
@@ -260,41 +276,19 @@ public class Solution {
                     m_route_final.set(H_with_the_heaviest_d[2], H3_new);
                 }
             } else {
-                System.out.println(":nothing change");
                 stop_H.add(H_with_the_heaviest_d[0]);
 //                stop_H.add(H_with_the_heaviest_d[1]);
 //                stop_H.add(H_with_the_heaviest_d[2]);
             }
             // логи
+            System.out.println(":улучшение на " + improvement);
             System.out.println(":меняем петли: " + H_with_the_heaviest_d[0] + ", " +
                     H_with_the_heaviest_d[1] + ", " +
-                    H_with_the_heaviest_d[2] + "\n");
+                    H_with_the_heaviest_d[2]);
             System.out.println(":F final " + F(m_route_final));
-        }
-//        } while (stop_H.size() != task.getN() - 1);
+        } while (improvement >= epsilon);
 
         return m_route_final;
-    }
-
-    private int getMinTriple(boolean[][] admissibility, int[][] triplets) {
-        int min_sum_triple = Integer.MAX_VALUE;
-        int min_triple = 0;
-        for (int i = 0; i < 15; i++) {
-            if (admissibility[triplets[i][0]][triplets[i][1]] && 
-                    admissibility[triplets[i][2]][triplets[i][3]] && 
-                    admissibility[triplets[i][4]][triplets[i][5]]) {
-                int sum_triple = task.getD()[triplets[i][0]][triplets[i][1]] +
-                        task.getD()[triplets[i][2]][triplets[i][3]] +
-                        task.getD()[triplets[i][4]][triplets[i][5]];
-                if (i == 0) System.out.println(":0 sum triple: " + sum_triple);
-                if (min_sum_triple > sum_triple) {
-                    min_sum_triple = sum_triple;
-                    min_triple = i;
-                }
-            }
-        }
-        System.out.println(":min sum triple: " + min_sum_triple);
-        return min_triple;
     }
 
     /**
