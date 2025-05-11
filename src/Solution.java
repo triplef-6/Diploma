@@ -99,7 +99,7 @@ public class Solution {
         }
 
         // здесь будет логика построения
-        List<Integer> stop_H = new ArrayList<>();
+        List<Integer> stop_H = new ArrayList<>(); // стоп лист для петель
 //        do {
         for (int e = 0; e < 100; e++) { // пока 2 повтора
             // найти 3 самых тяжёлых ребра
@@ -134,12 +134,15 @@ public class Solution {
                     break;
                 }
 
-                if (!stop_H.contains(H.getKey())) {
+                if (!stop_H.contains(H.getKey())) { // если петля не в стоп листе
                     H_with_the_heaviest_d[k] = H.getKey(); // петля с этим ребром
-                    v_i[k] = H.getValue().getV();
-                    v_i[k + 3] = H.getValue().getU();
+                    v_i[k] = H.getValue().getV(); // верхняя вершина
+                    v_i[k + 3] = H.getValue().getU(); // нижняя вершина
+
+                    // логи
                     System.out.println(":v[" + k + "] " +v_i[k]);
                     System.out.println(":v[" + (k + 3) + "] " +v_i[k + 3]);
+
                     k++; // счётчик
                 }
             }
@@ -156,59 +159,33 @@ public class Solution {
                 List<Integer> H_v_new = new ArrayList<>(); // хвост от нижней вершины
                 sum_H[i + 3] = 0;
 
+                // ищем индекс верхней вершины
                 int uIndex = -1;
-                for (int j = 0; j < m_route_final.get(H_with_the_heaviest_d[i]).size() - 1; j++) {
+                for (int j = 1; j < m_route_final.get(H_with_the_heaviest_d[i]).size() - 1; j++) {
                     if (m_route_final.get(H_with_the_heaviest_d[i]).get(j).equals(v_i[i])) {
                         uIndex = j;
                         break;
                     }
                 }
+
+                // верхний хвост
                 for (int j = 0; j <= uIndex; j++) {
-                    H_u_new.add(m_route_final.get(H_with_the_heaviest_d[i]).get(j));
+                    int v = m_route_final.get(H_with_the_heaviest_d[i]).get(j);
+                    H_u_new.add(v);
+                    if (v != 0) {
+                        sum_H[i] += task.getC()[v - 1];
+                    }
                 }
 
-                // Формируем второй список: от конца до v включительно
+                // нижний хвост
                 for (int j = m_route_final.get(H_with_the_heaviest_d[i]).size() - 1; j >= uIndex + 1; j--) {
-                    H_v_new.add(0, m_route_final.get(H_with_the_heaviest_d[i]).get(j)); // Добавляем в начало для сохранения порядка
+                    int v = m_route_final.get(H_with_the_heaviest_d[i]).get(j);
+                    H_v_new.add(v);
+                    if (v != 0) {
+                        sum_H[i + 3] += task.getC()[v - 1];
+                    }
                 }
-//                int j = 0;
-//                do {
-//                    H_u_new.add(m_route_final.get(H_with_the_heaviest_d[i]).get(j)); // добавляем вершину
-//                    if (m_route_final.get(H_with_the_heaviest_d[i]).get(j) != 0) { // считаем сумму если не база
-//                        sum_H[i] += task.getC()[m_route_final.get(H_with_the_heaviest_d[i]).get(j) - 1];
-//                    }
-//                    j++;
-//                } while (j != v_i[i]);
-//
-//                j = m_route_final.get(H_with_the_heaviest_d[i]).size() - 1;
-//                do {
-//                    H_v_new.add(m_route_final.get(H_with_the_heaviest_d[i]).get(j)); // добавляем вершину
-//                    if (m_route_final.get(H_with_the_heaviest_d[i]).get(j) != 0) { // считаем сумму если не база
-//                        sum_H[i + 3] += task.getC()[m_route_final.get(H_with_the_heaviest_d[i]).get(j) - 1];
-//                    }
-//                    j--;
-//                } while (j != v_i[i + 3]);
-//
-//
-//
-//                boolean flag = true;
-//                for (Integer v : m_route_final.get(H_with_the_heaviest_d[i])) { // добавляем каждую вершину в соответствующий хвост
-//                    if (flag) { // для верхнего хвоста
-//                        H_u_new.add(v); // добавляем вершину
-//                        if (v != 0) { // считаем сумму если не база
-//                            sum_H[i] += task.getC()[v - 1];
-//                        }
-//                    } else { // для нижнего хвоста
-//                        H_v_new.add(v); // добавляем вершину
-//                        if (v != 0) { // считаем сумму если не база
-//                            sum_H[i + 3] += task.getC()[v - 1];
-//                        }
-//                    }
-//
-//                    if (v == v_i[i]) { // когда дойдём до ребра
-//                        flag = false;
-//                    }
-//                }
+
                 H_new.put(i, H_u_new); // добавляем верхний хвост
                 H_new.put(i + 3, H_v_new); // добавляем нижний хвост
             }
@@ -219,6 +196,7 @@ public class Solution {
                     admissibility[i][j] = i == j || sum_H[i] + sum_H[j] <= task.getR(); // если суммы потребностей на хвостах больше r то нельзя
                 }
             }
+
             // отделение недопустимых рёбер
             // сравнение рёбер
             int[][] triplets = {
@@ -258,33 +236,30 @@ public class Solution {
                 H2_new.addAll(H_new.get(triplets[min_triple][3]));
 
                 List<Integer> H3_new = new ArrayList<>(H_new.get(triplets[min_triple][4]));
-                Collections.reverse(H_new.get(triplets[min_triple][3]));
+                Collections.reverse(H_new.get(triplets[min_triple][5]));
                 H3_new.addAll(H_new.get(triplets[min_triple][5]));
 
                 // строим улучшение жадным алгоритмом 
                 List<Integer> H1_new_advanced = greedy_Algorithm(H1_new);
-                m_route_final.set(H_with_the_heaviest_d[0], H1_new);
-//                if (F_H(H1_new_advanced) < F_H(H1_new)) {
-//                    m_route_final.set(H_with_the_heaviest_d[0], H1_new_advanced);
-//                } else {
-//                    m_route_final.set(H_with_the_heaviest_d[0], H1_new);
-//                }
+                if (F_H(H1_new_advanced) < F_H(H1_new)) {
+                    m_route_final.set(H_with_the_heaviest_d[0], H1_new_advanced);
+                } else {
+                    m_route_final.set(H_with_the_heaviest_d[0], H1_new);
+                }
 
                 List<Integer> H2_new_advanced = greedy_Algorithm(H2_new);
-                m_route_final.set(H_with_the_heaviest_d[1], H2_new);
-//                if (F_H(H2_new_advanced) < F_H(H2_new)) {
-//                    m_route_final.set(H_with_the_heaviest_d[1], H2_new_advanced);
-//                } else {
-//                    m_route_final.set(H_with_the_heaviest_d[1], H2_new);
-//                }
+                if (F_H(H2_new_advanced) < F_H(H2_new)) {
+                    m_route_final.set(H_with_the_heaviest_d[1], H2_new_advanced);
+                } else {
+                    m_route_final.set(H_with_the_heaviest_d[1], H2_new);
+                }
 
                 List<Integer> H3_new_advanced = greedy_Algorithm(H3_new);
-                m_route_final.set(H_with_the_heaviest_d[2], H3_new);
-//                if (F_H(H3_new_advanced) < F_H(H3_new)) {
-//                    m_route_final.set(H_with_the_heaviest_d[2], H3_new_advanced);
-//                } else {
-//                    m_route_final.set(H_with_the_heaviest_d[2], H3_new);
-//                }
+                if (F_H(H3_new_advanced) < F_H(H3_new)) {
+                    m_route_final.set(H_with_the_heaviest_d[2], H3_new_advanced);
+                } else {
+                    m_route_final.set(H_with_the_heaviest_d[2], H3_new);
+                }
             } else {
                 System.out.println(":nothing change");
                 stop_H.add(H_with_the_heaviest_d[0]);
@@ -298,10 +273,6 @@ public class Solution {
             System.out.println(":F final " + F(m_route_final));
         }
 //        } while (stop_H.size() != task.getN() - 1);
-
-
-
-
 
         return m_route_final;
     }
