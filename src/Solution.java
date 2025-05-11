@@ -105,7 +105,6 @@ public class Solution {
             // найти 3 самых тяжёлых ребра
             int[] H_with_the_heaviest_d = new int[3]; // 3 петли с самыми тяжёлыми рёбрами
             int[] v_i = new int[6]; // 6 вершин между которыми мы будем строить рёбра
-            int[] d_the_heaviest = new int[3]; // 3 самых тяжёлых ребра
 
             TreeMap<Integer, DWithVU> heavy_d = new TreeMap<>(Collections.reverseOrder()); // список самый тяжёлых рёбер в каждой H
             for (int i = 0; i < m_route_final.size(); i++) { // ищем самые тяжёлые рёбра в каждом H в маршруте
@@ -134,7 +133,7 @@ public class Solution {
                     break;
                 }
 
-                if (!stop_H.contains(H.getKey())) { // если петля не в стоп листе
+//                if (!stop_H.contains(H.getKey())) { // если петля не в стоп листе
                     H_with_the_heaviest_d[k] = H.getKey(); // петля с этим ребром
                     v_i[k] = H.getValue().getV(); // верхняя вершина
                     v_i[k + 3] = H.getValue().getU(); // нижняя вершина
@@ -144,7 +143,7 @@ public class Solution {
                     System.out.println(":v[" + (k + 3) + "] " +v_i[k + 3]);
 
                     k++; // счётчик
-                }
+//                }
             }
 
 
@@ -409,33 +408,37 @@ public class Solution {
     public String toString() {
         StringBuilder str = new StringBuilder();
 
-        str.append(">M route basic:\n");
-        int k = 0;
-        for (List<Integer> H : getM_route_basic()) {
-            str.append(">>").append(k).append("->");
-            for (Integer i : H) {
-                str.append(i).append("-");
+        if (m_route_basic != null) {
+            str.append(">M route basic:\n");
+            int k = 0;
+            for (List<Integer> H : getM_route_basic()) {
+                str.append(">>").append(k).append("->");
+                for (Integer i : H) {
+                    str.append(i).append("-");
+                }
+                str.append("\n");
+                k++;
             }
-            str.append("\n");
-            k++;
+            str.append(">>>F(basic) = ").append(getF_basic()).append("\n\n");
         }
-        str.append(">>>F(basic) = ").append(getF_basic()).append("\n\n");
 
-        str.append(">M route advanced:\n");
-        k = 0;
-        for (List<Integer> H : getM_route_advanced()) {
-            str.append(">>").append(k).append("->");
-            for (Integer i : H) {
-                str.append(i).append("-");
+        if (m_route_advanced != null) {
+            str.append(">M route advanced:\n");
+            int k = 0;
+            for (List<Integer> H : getM_route_advanced()) {
+                str.append(">>").append(k).append("->");
+                for (Integer i : H) {
+                    str.append(i).append("-");
+                }
+                str.append("\n");
+                k++;
             }
-            str.append("\n");
-            k++;
+            str.append(">>>F(advanced) = ").append(getF_advanced()).append("\n\n");
         }
-        str.append(">>>F(advanced) = ").append(getF_advanced()).append("\n\n");
 
         if (m_route_final != null) {
             str.append(">M route final:\n");
-            k = 0;
+            int k = 0;
             for (List<Integer> H : m_route_final) {
                 str.append(">>").append(k).append("->");
                 for (Integer i : H) {
