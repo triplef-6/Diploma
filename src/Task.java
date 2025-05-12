@@ -77,8 +77,8 @@ public class Task {
         return n;
     }
 
-    public int[] getC() {
-        return C;
+    public int getC(int i) {
+        return C[i - 1];
     }
 
     public int getR() {
@@ -89,8 +89,8 @@ public class Task {
         return m;
     }
 
-    public int[][] getD() {
-        return D;
+    public int getD(int i, int j) {
+        return D[i][j];
     }
 
     @Override
