@@ -28,7 +28,7 @@ public class Solution {
         // создаём соотношение номер вершины->потребность
         Map<Integer, Integer> V = HashMap.newHashMap(task.getN());
         for (int k = 1; k < task.getN(); k++) {
-            V.put(k, task.getC()[k - 1]);
+            V.put(k, task.getC(k));
         }
 
         // строим m-маршрут
@@ -47,7 +47,7 @@ public class Solution {
                     }
                 }
                 H.add(i); // добавляем её в маршрут
-                r_i -= task.getC()[i - 1]; // вычитаем из грузоподъёмности при обходе потребность выбранной вершины
+                r_i -= task.getC(i); // вычитаем из грузоподъёмности при обходе потребность выбранной вершины
                 V.remove(i); // удаляем выбранную вершину из соотношения
             } while (!V.isEmpty() && r_i >= Collections.min(V.values()));
 
@@ -101,6 +101,7 @@ public class Solution {
 
         // здесь будет логика построения
         List<Integer> stop_H = new ArrayList<>(); // стоп лист для петель
+        List<DWithVU> stop_d = new ArrayList<>(); // стоп лист для рёбер
         int improvement = 0; // на сколько мы улучшаем финальный результат
         do {
             // найти 3 самых тяжёлых ребра
@@ -110,15 +111,16 @@ public class Solution {
             TreeMap<Integer, DWithVU> heavy_d = new TreeMap<>(Collections.reverseOrder()); // список самый тяжёлых рёбер в каждой H
             for (int i = 0; i < m_route_final.size(); i++) { // ищем самые тяжёлые рёбра в каждом H в маршруте
                 List<Integer> H = m_route_final.get(i); // выбираем петлю
-                DWithVU d = new DWithVU(0, 0, Integer.MIN_VALUE);
+                DWithVU d_max = new DWithVU(0, 0, Integer.MIN_VALUE);
                 for (int j = 1; j < H.size() - 2; j++) { // ищем его
-                    if (d.getD() < task.getD()[H.get(j)][H.get(j + 1)]) {
-                        d.setV(H.get(j));
-                        d.setU(H.get(j + 1));
-                        d.setD(task.getD()[H.get(j)][H.get(j + 1)]);
+                    DWithVU d = new DWithVU(j, j + 1, task.getD(H.get(j), H.get(j + 1)));
+                    if (d_max.getD() < d.getD() /* && !stop_d.contains(d)*/) {
+                        d_max.setV(d.getV());
+                        d_max.setU(d.getU());
+                        d_max.setD(d.getD());
                     }
                 }
-                heavy_d.put(i, d);
+                heavy_d.put(i, d_max);
             }
             Map<Integer, DWithVU> heavy_d_sorted = heavy_d.entrySet().stream()
                     .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
@@ -169,7 +171,7 @@ public class Solution {
                     int v = m_route_final.get(H_with_the_heaviest_d[i]).get(j);
                     H_u_new.add(v);
                     if (v != 0) {
-                        sum_H[i] += task.getC()[v - 1];
+                        sum_H[i] += task.getC(v);
                     }
                 }
 
@@ -178,7 +180,7 @@ public class Solution {
                     int v = m_route_final.get(H_with_the_heaviest_d[i]).get(j);
                     H_v_new.add(v);
                     if (v != 0) {
-                        sum_H[i + 3] += task.getC()[v - 1];
+                        sum_H[i + 3] += task.getC(v);
                     }
                 }
 
@@ -223,9 +225,9 @@ public class Solution {
                 if (admissibility[triplets[i][0]][triplets[i][1]] &&
                         admissibility[triplets[i][2]][triplets[i][3]] &&
                         admissibility[triplets[i][4]][triplets[i][5]]) {
-                    int sum_triple = task.getD()[triplets[i][0]][triplets[i][1]] +
-                            task.getD()[triplets[i][2]][triplets[i][3]] +
-                            task.getD()[triplets[i][4]][triplets[i][5]];
+                    int sum_triple = task.getD(triplets[i][0], triplets[i][1]) +
+                            task.getD(triplets[i][2], triplets[i][3]) +
+                            task.getD(triplets[i][4], triplets[i][5]);
                     if (i == 0) {
                         improvement = sum_triple;
                         System.out.println(":0 sum triple: " + sum_triple);
@@ -276,7 +278,8 @@ public class Solution {
                     m_route_final.set(H_with_the_heaviest_d[2], H3_new);
                 }
             } else {
-                stop_H.add(H_with_the_heaviest_d[0]);
+                stop_d.add(new DWithVU(v_i[0], v_i[3], task.getD(v_i[0], v_i[3])));
+//                stop_H.add(H_with_the_heaviest_d[0]);
 //                stop_H.add(H_with_the_heaviest_d[1]);
 //                stop_H.add(H_with_the_heaviest_d[2]);
             }
@@ -286,7 +289,7 @@ public class Solution {
                     H_with_the_heaviest_d[1] + ", " +
                     H_with_the_heaviest_d[2]);
             System.out.println(":F final " + F(m_route_final));
-        } while (improvement >= epsilon);
+        } while (improvement >= epsilon /* || task.getN() * (task.getN() - 1) / 2 - stop_d.size() >= 3 */);
 
         return m_route_final;
     }
@@ -309,8 +312,8 @@ public class Solution {
         do { // работаем пока не обойдём все вершины в петле
             int min_D = Integer.MAX_VALUE;
             for (Integer i : H_) { // ищем минимальное ребро ji в петле
-                if (i != j && task.getD()[i][j] < min_D) {
-                    min_D = task.getD()[j][i];
+                if (!i.equals(j) && task.getD(i, j) < min_D) {
+                    min_D = task.getD(j, i);
                     j = i;
                 }
             }
@@ -393,7 +396,7 @@ public class Solution {
     private int F_H(List<Integer> H) {
         int F = 0;
         for (int i = 0; i < H.size() - 1; i++) {
-            F += task.getD()[H.get(i)][H.get(i + 1)];
+            F += task.getD(H.get(i), H.get(i + 1));
         }
         return F;
     }
@@ -488,6 +491,18 @@ class DWithVU implements Comparable<DWithVU> {
         return "v=" + v +
                 ", u=" + u +
                 ", d=" + d;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        DWithVU dWithVU = (DWithVU) o;
+        return v == dWithVU.v && u == dWithVU.u && d == dWithVU.d;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(v, u, d);
     }
 
     @Override
