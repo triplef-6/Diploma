@@ -406,47 +406,38 @@ public class Solution {
         StringBuilder str = new StringBuilder();
 
         if (m_route_basic != null) {
-            str.append(">M route basic:\n");
-            int k = 0;
-            for (List<Integer> H : getM_route_basic()) {
-                str.append(">>").append(k).append("->");
-                for (Integer i : H) {
-                    str.append(i).append("-");
-                }
-                str.append("\n");
-                k++;
-            }
-            str.append(">>>F(basic) = ").append(getF_basic()).append("\n\n");
+            str.append(">M route basic:\n")
+                    .append(toStringM_route(m_route_basic))
+                    .append(">>>F(basic) = ").append(getF_basic()).append("\n\n");
         }
 
         if (m_route_advanced != null) {
-            str.append(">M route advanced:\n");
-            int k = 0;
-            for (List<Integer> H : getM_route_advanced()) {
-                str.append(">>").append(k).append("->");
-                for (Integer i : H) {
-                    str.append(i).append("-");
-                }
-                str.append("\n");
-                k++;
-            }
-            str.append(">>>F(advanced) = ").append(getF_advanced()).append("\n\n");
+            str.append(">M route advanced:\n")
+                    .append(toStringM_route(m_route_advanced))
+                    .append(">>>F(advanced) = ").append(getF_advanced()).append("\n\n");
         }
 
         if (m_route_final != null) {
-            str.append(">M route final:\n");
-            int k = 0;
-            for (List<Integer> H : m_route_final) {
-                str.append(">>").append(k).append("->");
-                for (Integer i : H) {
-                    str.append(i).append("-");
-                }
-                str.append("\n");
-                k++;
-            }
-            str.append(">>>F(final) = ").append(getF_final()).append("\n\n");
+            str.append(">M route final:\n")
+                    .append(toStringM_route(m_route_final))
+                    .append(">>>F(final) = ").append(getF_final()).append("\n\n");
         }
         return str.toString();
+    }
+    private StringBuilder toStringM_route(List<List<Integer>> m_route) {
+        StringBuilder str = new StringBuilder();
+
+        int k = 0;
+        for (List<Integer> H : m_route) {
+            str.append(">>").append(k).append("->");
+            for (Integer i : H) {
+                str.append(i).append("-");
+            }
+            str.append("\n");
+            k++;
+        }
+
+        return str;
     }
 }
 
