@@ -100,10 +100,9 @@ public class Solution {
         }
 
         // здесь будет логика построения
-        List<Integer> stop_H = new ArrayList<>(); // стоп лист для петель
-        List<DWithVU> stop_d = new ArrayList<>(); // стоп лист для рёбер
         int improvement = 0; // на сколько мы улучшаем финальный результат
-        do {
+//        do {
+        for (int e = 0; e < 100; e++) {
             // найти 3 самых тяжёлых ребра
             int[] H_with_the_heaviest_d = new int[3]; // 3 петли с самыми тяжёлыми рёбрами
             int[] v_i = new int[6]; // 6 вершин между которыми мы будем строить рёбра
@@ -136,13 +135,11 @@ public class Solution {
                     break;
                 }
 
-//                if (!stop_H.contains(H.getKey())) { // если петля не в стоп листе
-                    H_with_the_heaviest_d[k] = H.getKey(); // петля с этим ребром
-                    v_i[k] = H.getValue().getV(); // верхняя вершина
-                    v_i[k + 3] = H.getValue().getU(); // нижняя вершина
+                H_with_the_heaviest_d[k] = H.getKey(); // петля с этим ребром
+                v_i[k] = H.getValue().getV(); // верхняя вершина
+                v_i[k + 3] = H.getValue().getU(); // нижняя вершина
 
-                    k++; // счётчик
-//                }
+                k++; // счётчик
             }
 
 
@@ -239,7 +236,7 @@ public class Solution {
                 }
             }
             improvement -= min_sum_triple;
-            System.out.println(":min triple " + min_triple);
+//            System.out.println(":min triple " + min_triple);
 
             // замена
             if (min_triple != 0) { // если нам нужно что-то менять
@@ -278,10 +275,6 @@ public class Solution {
                     m_route_final.set(H_with_the_heaviest_d[2], H3_new);
                 }
             } else {
-                stop_d.add(new DWithVU(v_i[0], v_i[3], task.getD(v_i[0], v_i[3])));
-//                stop_H.add(H_with_the_heaviest_d[0]);
-//                stop_H.add(H_with_the_heaviest_d[1]);
-//                stop_H.add(H_with_the_heaviest_d[2]);
             }
             // логи
             System.out.println(":улучшение на " + improvement);
@@ -289,8 +282,9 @@ public class Solution {
                     H_with_the_heaviest_d[1] + ", " +
                     H_with_the_heaviest_d[2]);
             System.out.println(":F final " + F(m_route_final));
-        } while (improvement >= epsilon /* || task.getN() * (task.getN() - 1) / 2 - stop_d.size() >= 3 */);
-
+            System.out.println(toStringM_route(m_route_final));
+//        } while (improvement >= epsilon /* || task.getN() * (task.getN() - 1) / 2 - stop_d.size() >= 3 */);
+        }
         return m_route_final;
     }
 
