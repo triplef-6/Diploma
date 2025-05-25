@@ -18,7 +18,7 @@ public class M_route {
     }
 
     public Integer getF(Task task) {
-        int F = 0;
+        this.F = 0;
         for (List<Integer> H : m_route) { // суммируем все рёбра во всех H
             F += F_H(H, task);
         }
