@@ -4,17 +4,33 @@ import java.util.Objects;
 
 public class M_route {
     private List<List<Integer>> m_route;
+    public Integer F;
 
     public M_route() {
         this.m_route = new ArrayList<>();
     }
     public M_route(List<List<Integer>> m_route) {
-        this.m_route = m_route;
-    }
-    public M_route(M_route m_route) {
-        this.m_route = m_route.m_route;
+        this.m_route = new ArrayList<>(m_route);
     }
 
+    public int size() {
+        return m_route.size();
+    }
+
+    public Integer getF(Task task) {
+        int F = 0;
+        for (List<Integer> H : m_route) { // суммируем все рёбра во всех H
+            F += F_H(H, task);
+        }
+        return F;
+    }
+    private int F_H(List<Integer> H, Task task) {
+        int F = 0;
+        for (int i = 0; i < H.size() - 1; i++) {
+            F += task.getD(H.get(i), H.get(i + 1));
+        }
+        return F;
+    }
 
     public List<Integer> getH(int i) {
         return m_route.get(i);

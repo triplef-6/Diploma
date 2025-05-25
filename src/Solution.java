@@ -3,12 +3,9 @@ import java.util.stream.Collectors;
 
 public class Solution {
     private final Task task; // задача
-    private List<List<Integer>> m_route_basic; // m-маршрут (начальное решение)
-    private List<List<Integer>> m_route_advanced; // m-маршрут (улучшенное жадным алгоритмом)
-    private List<List<Integer>> m_route_final; // m-маршрут (начальное решение + алгоритм улучшения)   
-    private Integer F_basic; // значение целевой функции для начального решения
-    private Integer F_advanced; // значение целевой функции для улучшенного начального решения
-    private Integer F_final; // значение целевой функции (начальное решение + алгоритм улучшения)   
+    private M_route  m_route_basic; // m-маршрут (начальное решение)
+    private M_route  m_route_advanced; // m-маршрут (улучшенное жадным алгоритмом)
+    private M_route  m_route_final; // m-маршрут (начальное решение + алгоритм улучшения)
 
     public Solution(Task task) {
         this.task = task;
@@ -20,10 +17,10 @@ public class Solution {
     public List<List<Integer>> getM_route_basic() {
         // если начальное решение уже построено
         if (m_route_basic != null) {
-            return m_route_basic;
+            return m_route_basic.getM_route();
         }
 
-        m_route_basic = new ArrayList<>();
+        m_route_basic = new M_route();
 
         // создаём соотношение номер вершины->потребность
         Map<Integer, Integer> V = HashMap.newHashMap(task.getN());
@@ -53,10 +50,10 @@ public class Solution {
 
             H.add(0); // добавляем базу в конец петли
 
-            m_route_basic.add(H); // добавляем петлю в m-маршрут
+            m_route_basic.addH(H); // добавляем петлю в m-маршрут
         }
 
-        return m_route_basic;
+        return m_route_basic.getM_route();
     }
 
     /**
@@ -65,7 +62,7 @@ public class Solution {
     public List<List<Integer>> getM_route_advanced() {
         // если улучшенное начальное решение уже построено
         if (m_route_advanced != null) {
-            return m_route_advanced;
+            return m_route_advanced.getM_route();
         }
 
         // если начальное решение ещё не построено
@@ -74,12 +71,12 @@ public class Solution {
             getM_route_basic();
         }
 
-        m_route_advanced  = new ArrayList<>();
-        for (List<Integer> H : m_route_basic) { // проходимся по каждой петле
-            m_route_advanced.add(greedy_Algorithm(H)); // используем для отого отдельную функцию
+        m_route_advanced = new M_route();
+        for (List<Integer> H : m_route_basic.getM_route()) { // проходимся по каждой петле
+            m_route_advanced.addH(greedy_Algorithm(H)); // используем для этого отдельную функцию
         }
 
-        return m_route_advanced;
+        return m_route_advanced.getM_route();
     }
 
     /**
@@ -90,13 +87,13 @@ public class Solution {
     public List<List<Integer>> getM_route_final(double epsilon, boolean if_we_get_advanced) {
         // если финальное решение уже построено
         if (m_route_final != null) {
-            return m_route_final;
+            return m_route_final.getM_route();
         }
         // если мы выбрали улучшенное решение
         if (if_we_get_advanced) {
-            m_route_final = getM_route_advanced();
+            m_route_final = new M_route(m_route_advanced.getM_route());
         } else { // если мы выбрали базовое решение
-            m_route_final = getM_route_basic();
+            m_route_final = new M_route(m_route_basic.getM_route());
         }
 
         // здесь будет логика построения
@@ -106,12 +103,12 @@ public class Solution {
                 for (int H_3 = H_2 + 1; H_3 < m_route_final.size(); H_3++) { // проходимся по всем петлям
 
                     outerLoop:
-                    for (int d_1 = 1; d_1 < m_route_final.get(H_1).size() - 2; d_1++) {
-                        for (int d_2 = 1; d_2 < m_route_final.get(H_2).size() - 2; d_2++) {
-                            for (int d_3 = 1; d_3 < m_route_final.get(H_3).size() - 2; d_3++) {
-                                if (d_1 >= m_route_final.get(H_1).size() - 2 ||
-                                d_2 >= m_route_final.get(H_2).size() - 2 ||
-                                d_3 >= m_route_final.get(H_3).size() - 2) {
+                    for (int d_1 = 1; d_1 < m_route_final.getH(H_1).size() - 2; d_1++) {
+                        for (int d_2 = 1; d_2 < m_route_final.getH(H_2).size() - 2; d_2++) {
+                            for (int d_3 = 1; d_3 < m_route_final.getH(H_3).size() - 2; d_3++) {
+                                if (d_1 >= m_route_final.getH(H_1).size() - 2 ||
+                                d_2 >= m_route_final.getH(H_2).size() - 2 ||
+                                d_3 >= m_route_final.getH(H_3).size() - 2) {
                                     break outerLoop;
                                 }
 
@@ -121,16 +118,16 @@ public class Solution {
 
 
                                 H_with_the_heaviest_d[0] = H_1;
-                                v_i[0] = m_route_final.get(H_with_the_heaviest_d[0]).get(d_1);
-                                v_i[3] = m_route_final.get(H_with_the_heaviest_d[0]).get(d_1 + 1);
+                                v_i[0] = m_route_final.getH(H_with_the_heaviest_d[0]).get(d_1);
+                                v_i[3] = m_route_final.getH(H_with_the_heaviest_d[0]).get(d_1 + 1);
 
                                 H_with_the_heaviest_d[1] = H_2;
-                                v_i[1] = m_route_final.get(H_with_the_heaviest_d[1]).get(d_2);
-                                v_i[4] = m_route_final.get(H_with_the_heaviest_d[1]).get(d_2 + 1);
+                                v_i[1] = m_route_final.getH(H_with_the_heaviest_d[1]).get(d_2);
+                                v_i[4] = m_route_final.getH(H_with_the_heaviest_d[1]).get(d_2 + 1);
 
                                 H_with_the_heaviest_d[2] = H_3;
-                                v_i[2] = m_route_final.get(H_with_the_heaviest_d[2]).get(d_3);
-                                v_i[5] = m_route_final.get(H_with_the_heaviest_d[2]).get(d_3 + 1);
+                                v_i[2] = m_route_final.getH(H_with_the_heaviest_d[2]).get(d_3);
+                                v_i[5] = m_route_final.getH(H_with_the_heaviest_d[2]).get(d_3 + 1);
 
 
                                 // поиск допустимых рёбер и построение хвостов
@@ -146,8 +143,8 @@ public class Solution {
 
                                     // ищем индекс верхней вершины
                                     int uIndex = -1;
-                                    for (int j = 1; j < m_route_final.get(H_with_the_heaviest_d[i]).size() - 1; j++) {
-                                        if (m_route_final.get(H_with_the_heaviest_d[i]).get(j).equals(v_i[i])) {
+                                    for (int j = 1; j < m_route_final.getH(H_with_the_heaviest_d[i]).size() - 1; j++) {
+                                        if (m_route_final.getH(H_with_the_heaviest_d[i]).get(j).equals(v_i[i])) {
                                             uIndex = j;
                                             break;
                                         }
@@ -155,7 +152,7 @@ public class Solution {
 
                                     // верхний хвост
                                     for (int j = 0; j <= uIndex; j++) {
-                                        int v = m_route_final.get(H_with_the_heaviest_d[i]).get(j);
+                                        int v = m_route_final.getH(H_with_the_heaviest_d[i]).get(j);
                                         H_u_new.add(v);
                                         if (v != 0) {
                                             sum_H[i] += task.getC(v);
@@ -163,8 +160,8 @@ public class Solution {
                                     }
 
                                     // нижний хвост
-                                    for (int j = m_route_final.get(H_with_the_heaviest_d[i]).size() - 1; j >= uIndex + 1; j--) {
-                                        int v = m_route_final.get(H_with_the_heaviest_d[i]).get(j);
+                                    for (int j = m_route_final.getH(H_with_the_heaviest_d[i]).size() - 1; j >= uIndex + 1; j--) {
+                                        int v = m_route_final.getH(H_with_the_heaviest_d[i]).get(j);
                                         H_v_new.add(v);
                                         if (v != 0) {
                                             sum_H[i + 3] += task.getC(v);
@@ -245,23 +242,23 @@ public class Solution {
                                     // строим улучшение жадным алгоритмом
                                     List<Integer> H1_new_advanced = greedy_Algorithm(H1_new);
                                     if (F_H(H1_new_advanced) < F_H(H1_new)) {
-                                        m_route_final.set(H_with_the_heaviest_d[0], H1_new_advanced);
+                                        m_route_final.setH(H_with_the_heaviest_d[0], H1_new_advanced);
                                     } else {
-                                        m_route_final.set(H_with_the_heaviest_d[0], H1_new);
+                                        m_route_final.setH(H_with_the_heaviest_d[0], H1_new);
                                     }
 
                                     List<Integer> H2_new_advanced = greedy_Algorithm(H2_new);
                                     if (F_H(H2_new_advanced) < F_H(H2_new)) {
-                                        m_route_final.set(H_with_the_heaviest_d[1], H2_new_advanced);
+                                        m_route_final.setH(H_with_the_heaviest_d[1], H2_new_advanced);
                                     } else {
-                                        m_route_final.set(H_with_the_heaviest_d[1], H2_new);
+                                        m_route_final.setH(H_with_the_heaviest_d[1], H2_new);
                                     }
 
                                     List<Integer> H3_new_advanced = greedy_Algorithm(H3_new);
                                     if (F_H(H3_new_advanced) < F_H(H3_new)) {
-                                        m_route_final.set(H_with_the_heaviest_d[2], H3_new_advanced);
+                                        m_route_final.setH(H_with_the_heaviest_d[2], H3_new_advanced);
                                     } else {
-                                        m_route_final.set(H_with_the_heaviest_d[2], H3_new);
+                                        m_route_final.setH(H_with_the_heaviest_d[2], H3_new);
                                     }
                                 }
                                 // логи
@@ -269,15 +266,15 @@ public class Solution {
                                 System.out.println(":меняем петли: " + H_with_the_heaviest_d[0] + ", " +
                                         H_with_the_heaviest_d[1] + ", " +
                                         H_with_the_heaviest_d[2]);
-                                System.out.println(":F final " + F(m_route_final));
-                                System.out.println(toStringM_route(m_route_final));
+                                System.out.println(":F final " + m_route_final.getF(task));
+                                System.out.println(m_route_final);
                             }
                         }
                     }
                 }
             }
         }
-        return m_route_final;
+        return m_route_final.getM_route();
     }
 
     /**
@@ -319,51 +316,36 @@ public class Solution {
      * @return значения целевой функции для начального решения
      */
     public int getF_basic() {
-        // если значение уже вычислено
-        if (F_basic != null) {
-            return F_basic;
-        }
         // если начальное решение ещё не построено
         if (m_route_basic == null) {
             getM_route_basic();
         }
 
-        F_basic = F(m_route_basic);
-        return F_basic;
+        return m_route_basic.getF(task);
     }
 
     /**
      * @return значения целевой функции для улучшенного начального решения
      */
     public int getF_advanced() {
-        // если значение уже вычислено
-        if (F_advanced != null) {
-            return F_advanced;
-        }
         // если начальное решение ещё не построено
         if (m_route_advanced == null) {
             getM_route_advanced();
         }
 
-        F_advanced = F(m_route_advanced);
-        return F_advanced;
+        return m_route_advanced.getF(task);
     }
 
     /**
      * @return значение целевой функции для финального решения, null - если оно ещё не построено
      */
     public Integer getF_final() {
-        // если значение уже вычислено
-        if (F_final != null) {
-            return F_final ;
-        }
         // если начальное решение ещё не построено
         if (m_route_final == null) {
             return null;
         }
 
-        F_final  = F(m_route_final);
-        return F_final;
+        return m_route_final.getF(task);
     }
 
     /**
@@ -393,37 +375,22 @@ public class Solution {
 
         if (m_route_basic != null) {
             str.append(">M route basic:\n")
-                    .append(toStringM_route(m_route_basic))
+                    .append(m_route_basic)
                     .append(">>>F(basic) = ").append(getF_basic()).append("\n\n");
         }
 
         if (m_route_advanced != null) {
             str.append(">M route advanced:\n")
-                    .append(toStringM_route(m_route_advanced))
+                    .append(m_route_advanced)
                     .append(">>>F(advanced) = ").append(getF_advanced()).append("\n\n");
         }
 
         if (m_route_final != null) {
             str.append(">M route final:\n")
-                    .append(toStringM_route(m_route_final))
+                    .append(m_route_final)
                     .append(">>>F(final) = ").append(getF_final()).append("\n\n");
         }
         return str.toString();
-    }
-    private StringBuilder toStringM_route(List<List<Integer>> m_route) {
-        StringBuilder str = new StringBuilder();
-
-        int k = 0;
-        for (List<Integer> H : m_route) {
-            str.append(">>").append(k).append("->");
-            for (Integer i : H) {
-                str.append(i).append("-");
-            }
-            str.append("\n");
-            k++;
-        }
-
-        return str;
     }
 }
 
