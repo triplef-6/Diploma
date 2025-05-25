@@ -101,188 +101,182 @@ public class Solution {
 
         // здесь будет логика построения
         int improvement = 0; // на сколько мы улучшаем финальный результат
-        for (int e = 0; e < 100; e++) {
-            // найти 3 самых тяжёлых ребра
-            int[] H_with_the_heaviest_d = new int[3]; // 3 петли с самыми тяжёлыми рёбрами
-            int[] v_i = new int[6]; // 6 вершин между которыми мы будем строить рёбра
+        for (int e1 = 0; e1 < m_route_final.size() - 2; e1++) {
+            for (int e2 = e1 + 1; e2 < m_route_final.size() - 1; e2++) {
+                for (int e3 = e2 + 1; e3 < m_route_final.size(); e3++) {
+                    // найти 3 самых тяжёлых ребра
+                    int[] H_with_the_heaviest_d = new int[3]; // 3 петли с самыми тяжёлыми рёбрами
+                    int[] v_i = new int[6]; // 6 вершин между которыми мы будем строить рёбра
 
-            TreeMap<Integer, DWithVU> heavy_d = new TreeMap<>(Collections.reverseOrder()); // список самый тяжёлых рёбер в каждой H
-            for (int i = 0; i < m_route_final.size(); i++) { // ищем самые тяжёлые рёбра в каждом H в маршруте
-                List<Integer> H = m_route_final.get(i); // выбираем петлю
-                DWithVU d_max = new DWithVU(0, 0, Integer.MIN_VALUE);
-                for (int j = 1; j < H.size() - 2; j++) { // ищем его
-                    DWithVU d = new DWithVU(j, j + 1, task.getD(H.get(j), H.get(j + 1)));
-                    if (d_max.getD() < d.getD() /* && !stop_d.contains(d)*/) {
-                        d_max.setV(d.getV());
-                        d_max.setU(d.getU());
-                        d_max.setD(d.getD());
+                    TreeMap<Integer, DWithVU> heavy_d = new TreeMap<>(Collections.reverseOrder()); // список самый тяжёлых рёбер в каждой H
+                    for (int i = 0; i < m_route_final.size(); i++) { // ищем самые тяжёлые рёбра в каждом H в маршруте
+                        List<Integer> H = m_route_final.get(i); // выбираем петлю
+                        DWithVU d_max = new DWithVU(0, 0, Integer.MIN_VALUE);
+                        for (int j = 1; j < H.size() - 2; j++) { // ищем его
+                            DWithVU d = new DWithVU(j, j + 1, task.getD(H.get(j), H.get(j + 1)));
+                            if (d_max.getD() < d.getD()) {
+                                d_max.setV(d.getV());
+                                d_max.setU(d.getU());
+                                d_max.setD(d.getD());
+                            }
+                        }
+                        heavy_d.put(i, d_max);
                     }
-                }
-                heavy_d.put(i, d_max);
-            }
-            Map<Integer, DWithVU> heavy_d_sorted = heavy_d.entrySet().stream()
-                    .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            (oldValue, newValue) -> oldValue,
-                            LinkedHashMap::new)); // сортировка
 
-            int k = 0;
-            for (Map.Entry<Integer, DWithVU> H : heavy_d_sorted.entrySet()) { // берём три петли с самыми тяжёлыми рёбрами
-                if (k == 3) { // счётчик
-                    break;
-                }
+                    H_with_the_heaviest_d[0] = e1;
+                    v_i[0] = heavy_d.get(H_with_the_heaviest_d[0]).getV();
+                    v_i[3] = heavy_d.get(H_with_the_heaviest_d[0]).getU();
 
-                H_with_the_heaviest_d[k] = H.getKey(); // петля с этим ребром
-                v_i[k] = H.getValue().getV(); // верхняя вершина
-                v_i[k + 3] = H.getValue().getU(); // нижняя вершина
+                    H_with_the_heaviest_d[1] = e2;
+                    v_i[1] = heavy_d.get(H_with_the_heaviest_d[1]).getV();
+                    v_i[4] = heavy_d.get(H_with_the_heaviest_d[1]).getU();
 
-                k++; // счётчик
-            }
+                    H_with_the_heaviest_d[2] = e3;
+                    v_i[2] = heavy_d.get(H_with_the_heaviest_d[2]).getV();
+                    v_i[5] = heavy_d.get(H_with_the_heaviest_d[2]).getU();
 
 
-            // поиск допустимых рёбер и построение хвостов
-            Map<Integer, List<Integer>> H_new = new HashMap<>(); // новые петли
-            int[] sum_H = new int[6]; // сумма потребностей для каждого хвоста
+                    // поиск допустимых рёбер и построение хвостов
+                    Map<Integer, List<Integer>> H_new = new HashMap<>(); // новые петли
+                    int[] sum_H = new int[6]; // сумма потребностей для каждого хвоста
 
-            for (int i = 0; i < 3; i++) { // строим 6 хвостов и считаем сумму потребностей в них
-                List<Integer> H_u_new = new ArrayList<>(); // хвост от верхней вершины
-                sum_H[i] = 0;
+                    for (int i = 0; i < 3; i++) { // строим 6 хвостов и считаем сумму потребностей в них
+                        List<Integer> H_u_new = new ArrayList<>(); // хвост от верхней вершины
+                        sum_H[i] = 0;
 
-                List<Integer> H_v_new = new ArrayList<>(); // хвост от нижней вершины
-                sum_H[i + 3] = 0;
+                        List<Integer> H_v_new = new ArrayList<>(); // хвост от нижней вершины
+                        sum_H[i + 3] = 0;
 
-                // ищем индекс верхней вершины
-                int uIndex = -1;
-                for (int j = 1; j < m_route_final.get(H_with_the_heaviest_d[i]).size() - 1; j++) {
-                    if (m_route_final.get(H_with_the_heaviest_d[i]).get(j).equals(v_i[i])) {
-                        uIndex = j;
-                        break;
+                        // ищем индекс верхней вершины
+                        int uIndex = -1;
+                        for (int j = 1; j < m_route_final.get(H_with_the_heaviest_d[i]).size() - 1; j++) {
+                            if (m_route_final.get(H_with_the_heaviest_d[i]).get(j).equals(v_i[i])) {
+                                uIndex = j;
+                                break;
+                            }
+                        }
+
+                        // верхний хвост
+                        for (int j = 0; j <= uIndex; j++) {
+                            int v = m_route_final.get(H_with_the_heaviest_d[i]).get(j);
+                            H_u_new.add(v);
+                            if (v != 0) {
+                                sum_H[i] += task.getC(v);
+                            }
+                        }
+
+                        // нижний хвост
+                        for (int j = m_route_final.get(H_with_the_heaviest_d[i]).size() - 1; j >= uIndex + 1; j--) {
+                            int v = m_route_final.get(H_with_the_heaviest_d[i]).get(j);
+                            H_v_new.add(v);
+                            if (v != 0) {
+                                sum_H[i + 3] += task.getC(v);
+                            }
+                        }
+
+                        H_new.put(i, H_u_new); // добавляем верхний хвост
+                        H_new.put(i + 3, H_v_new); // добавляем нижний хвост
                     }
-                }
 
-                // верхний хвост
-                for (int j = 0; j <= uIndex; j++) {
-                    int v = m_route_final.get(H_with_the_heaviest_d[i]).get(j);
-                    H_u_new.add(v);
-                    if (v != 0) {
-                        sum_H[i] += task.getC(v);
+                    boolean[][] admissibility = new boolean[6][6]; // можно ли строить ребро между этими вершинами
+                    for (int i = 0; i < 6; i++) {
+                        for (int j = 0; j < 6; j++) {
+                            admissibility[i][j] = i == j || sum_H[i] + sum_H[j] <= task.getR(); // если суммы потребностей на хвостах больше r то нельзя
+                        }
                     }
-                }
 
-                // нижний хвост
-                for (int j = m_route_final.get(H_with_the_heaviest_d[i]).size() - 1; j >= uIndex + 1; j--) {
-                    int v = m_route_final.get(H_with_the_heaviest_d[i]).get(j);
-                    H_v_new.add(v);
-                    if (v != 0) {
-                        sum_H[i + 3] += task.getC(v);
+                    // отделение недопустимых рёбер
+                    // сравнение рёбер
+                    int[][] triplets = {
+                            {0, 3, 1, 4, 2, 5},
+                            {0, 3, 1, 5, 2, 4},
+                            {0, 3, 1, 2, 4, 5},
+
+                            {0, 4, 1, 3, 2, 5},
+                            {0, 5, 1, 3, 2, 4},
+                            {0, 2, 1, 3, 4, 5},
+
+                            {0, 1, 4, 5, 2, 3},
+                            {0, 5, 1, 4, 2, 3},
+                            {0, 4, 1, 5, 2, 3},
+
+                            {0, 4, 1, 2, 3, 5},
+                            {0, 1, 2, 4, 3, 5},
+                            {0, 2, 1, 4, 3, 5},
+
+                            {0, 5, 1, 2, 3, 4},
+                            {0, 1, 2, 5, 3, 4},
+                            {0, 2, 1, 5, 3, 4},
+                    }; // таблица возможных троек
+
+                    int min_sum_triple = Integer.MAX_VALUE;
+                    int min_triple = 0;
+                    for (int i = 0; i < 15; i++) {
+                        if (admissibility[triplets[i][0]][triplets[i][1]] &&
+                                admissibility[triplets[i][2]][triplets[i][3]] &&
+                                admissibility[triplets[i][4]][triplets[i][5]]) {
+                            int sum_triple = task.getD(triplets[i][0], triplets[i][1]) +
+                                    task.getD(triplets[i][2], triplets[i][3]) +
+                                    task.getD(triplets[i][4], triplets[i][5]);
+                            if (i == 0) {
+                                improvement = sum_triple;
+                                System.out.println(":0 sum triple: " + sum_triple);
+                            }
+                            if (min_sum_triple > sum_triple) {
+                                min_sum_triple = sum_triple;
+                                min_triple = i;
+                            }
+                        }
                     }
-                }
+                    improvement -= min_sum_triple;
+                    //            System.out.println(":min triple " + min_triple);
 
-                H_new.put(i, H_u_new); // добавляем верхний хвост
-                H_new.put(i + 3, H_v_new); // добавляем нижний хвост
-            }
+                    // замена
+                    if (min_triple != 0) { // если нам нужно что-то менять
+                        // строим новые H из хвостов в соответствии с выбранной тройкой
+                        List<Integer> H1_new = new ArrayList<>(H_new.get(triplets[min_triple][0]));
+                        Collections.reverse(H_new.get(triplets[min_triple][1]));
+                        H1_new.addAll(H_new.get(triplets[min_triple][1]));
 
-            boolean[][] admissibility = new boolean[6][6]; // можно ли строить ребро между этими вершинами
-            for (int i = 0; i < 6; i++) {
-                for (int j = 0; j < 6; j++) {
-                    admissibility[i][j] = i == j || sum_H[i] + sum_H[j] <= task.getR(); // если суммы потребностей на хвостах больше r то нельзя
-                }
-            }
+                        List<Integer> H2_new = new ArrayList<>(H_new.get(triplets[min_triple][2]));
+                        Collections.reverse(H_new.get(triplets[min_triple][3]));
+                        H2_new.addAll(H_new.get(triplets[min_triple][3]));
 
-            // отделение недопустимых рёбер
-            // сравнение рёбер
-            int[][] triplets = {
-                    {0, 3, 1, 4, 2, 5},
-                    {0, 3, 1, 5, 2, 4},
-                    {0, 3, 1, 2, 4, 5},
+                        List<Integer> H3_new = new ArrayList<>(H_new.get(triplets[min_triple][4]));
+                        Collections.reverse(H_new.get(triplets[min_triple][5]));
+                        H3_new.addAll(H_new.get(triplets[min_triple][5]));
 
-                    {0, 4, 1, 3, 2, 5},
-                    {0, 5, 1, 3, 2, 4},
-                    {0, 2, 1, 3, 4, 5},
+                        // строим улучшение жадным алгоритмом
+                        List<Integer> H1_new_advanced = greedy_Algorithm(H1_new);
+                        if (F_H(H1_new_advanced) < F_H(H1_new)) {
+                            m_route_final.set(H_with_the_heaviest_d[0], H1_new_advanced);
+                        } else {
+                            m_route_final.set(H_with_the_heaviest_d[0], H1_new);
+                        }
 
-                    {0, 1, 4, 5, 2, 3},
-                    {0, 5, 1, 4, 2, 3},
-                    {0, 4, 1, 5, 2, 3},
+                        List<Integer> H2_new_advanced = greedy_Algorithm(H2_new);
+                        if (F_H(H2_new_advanced) < F_H(H2_new)) {
+                            m_route_final.set(H_with_the_heaviest_d[1], H2_new_advanced);
+                        } else {
+                            m_route_final.set(H_with_the_heaviest_d[1], H2_new);
+                        }
 
-                    {0, 4, 1, 2, 3, 5},
-                    {0, 1, 2, 4, 3, 5},
-                    {0, 2, 1, 4, 3, 5},
-
-                    {0, 5, 1, 2, 3, 4},
-                    {0, 1, 2, 5, 3, 4},
-                    {0, 2, 1, 5, 3, 4},
-            }; // таблица возможных троек
-
-            int min_sum_triple = Integer.MAX_VALUE;
-            int min_triple = 0;
-            for (int i = 0; i < 15; i++) {
-                if (admissibility[triplets[i][0]][triplets[i][1]] &&
-                        admissibility[triplets[i][2]][triplets[i][3]] &&
-                        admissibility[triplets[i][4]][triplets[i][5]]) {
-                    int sum_triple = task.getD(triplets[i][0], triplets[i][1]) +
-                            task.getD(triplets[i][2], triplets[i][3]) +
-                            task.getD(triplets[i][4], triplets[i][5]);
-                    if (i == 0) {
-                        improvement = sum_triple;
-                        System.out.println(":0 sum triple: " + sum_triple);
+                        List<Integer> H3_new_advanced = greedy_Algorithm(H3_new);
+                        if (F_H(H3_new_advanced) < F_H(H3_new)) {
+                            m_route_final.set(H_with_the_heaviest_d[2], H3_new_advanced);
+                        } else {
+                            m_route_final.set(H_with_the_heaviest_d[2], H3_new);
+                        }
                     }
-                    if (min_sum_triple > sum_triple) {
-                        min_sum_triple = sum_triple;
-                        min_triple = i;
-                    }
+                    // логи
+                    System.out.println(":улучшение на " + improvement);
+                    System.out.println(":меняем петли: " + H_with_the_heaviest_d[0] + ", " +
+                            H_with_the_heaviest_d[1] + ", " +
+                            H_with_the_heaviest_d[2]);
+                    System.out.println(":F final " + F(m_route_final));
+                    System.out.println(toStringM_route(m_route_final));
                 }
             }
-            improvement -= min_sum_triple;
-//            System.out.println(":min triple " + min_triple);
-
-            // замена
-            if (min_triple != 0) { // если нам нужно что-то менять
-                // строим новые H из хвостов в соответствии с выбранной тройкой
-                List<Integer> H1_new = new ArrayList<>(H_new.get(triplets[min_triple][0]));
-                Collections.reverse(H_new.get(triplets[min_triple][1]));
-                H1_new.addAll(H_new.get(triplets[min_triple][1]));
-
-                List<Integer> H2_new = new ArrayList<>(H_new.get(triplets[min_triple][2]));
-                Collections.reverse(H_new.get(triplets[min_triple][3]));
-                H2_new.addAll(H_new.get(triplets[min_triple][3]));
-
-                List<Integer> H3_new = new ArrayList<>(H_new.get(triplets[min_triple][4]));
-                Collections.reverse(H_new.get(triplets[min_triple][5]));
-                H3_new.addAll(H_new.get(triplets[min_triple][5]));
-
-                // строим улучшение жадным алгоритмом 
-                List<Integer> H1_new_advanced = greedy_Algorithm(H1_new);
-                if (F_H(H1_new_advanced) < F_H(H1_new)) {
-                    m_route_final.set(H_with_the_heaviest_d[0], H1_new_advanced);
-                } else {
-                    m_route_final.set(H_with_the_heaviest_d[0], H1_new);
-                }
-
-                List<Integer> H2_new_advanced = greedy_Algorithm(H2_new);
-                if (F_H(H2_new_advanced) < F_H(H2_new)) {
-                    m_route_final.set(H_with_the_heaviest_d[1], H2_new_advanced);
-                } else {
-                    m_route_final.set(H_with_the_heaviest_d[1], H2_new);
-                }
-
-                List<Integer> H3_new_advanced = greedy_Algorithm(H3_new);
-                if (F_H(H3_new_advanced) < F_H(H3_new)) {
-                    m_route_final.set(H_with_the_heaviest_d[2], H3_new_advanced);
-                } else {
-                    m_route_final.set(H_with_the_heaviest_d[2], H3_new);
-                }
-            } else {
-            }
-            // логи
-            System.out.println(":улучшение на " + improvement);
-            System.out.println(":меняем петли: " + H_with_the_heaviest_d[0] + ", " +
-                    H_with_the_heaviest_d[1] + ", " +
-                    H_with_the_heaviest_d[2]);
-            System.out.println(":F final " + F(m_route_final));
-            System.out.println(toStringM_route(m_route_final));
-//        } while (improvement >= epsilon /* || task.getN() * (task.getN() - 1) / 2 - stop_d.size() >= 3 */);
         }
         return m_route_final;
     }
