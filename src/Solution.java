@@ -14,10 +14,10 @@ public class Solution {
     /**
      * @return начальное решение
      */
-    public List<List<Integer>> getM_route_basic() {
+    public M_route getM_route_basic() {
         // если начальное решение уже построено
         if (m_route_basic != null) {
-            return m_route_basic.getM_route();
+            return m_route_basic;
         }
 
         m_route_basic = new M_route();
@@ -53,16 +53,16 @@ public class Solution {
             m_route_basic.addH(H); // добавляем петлю в m-маршрут
         }
 
-        return m_route_basic.getM_route();
+        return m_route_basic;
     }
 
     /**
      * @return улучшенное начальное решение
      */
-    public List<List<Integer>> getM_route_advanced() {
+    public M_route getM_route_advanced() {
         // если улучшенное начальное решение уже построено
         if (m_route_advanced != null) {
-            return m_route_advanced.getM_route();
+            return m_route_advanced;
         }
 
         // если начальное решение ещё не построено
@@ -76,7 +76,7 @@ public class Solution {
             m_route_advanced.addH(greedy_Algorithm(H)); // используем для этого отдельную функцию
         }
 
-        return m_route_advanced.getM_route();
+        return m_route_advanced;
     }
 
     /**
@@ -84,16 +84,16 @@ public class Solution {
      * @param if_we_get_advanced true - если мы будем строить от улучшенного начального решения, false - если от базового 
      * @return финальное решение
      */
-    public List<List<Integer>> getM_route_final(double epsilon, boolean if_we_get_advanced) {
+    public M_route getM_route_final(double epsilon, boolean if_we_get_advanced) {
         // если финальное решение уже построено
         if (m_route_final != null) {
-            return m_route_final.getM_route();
+            return m_route_final;
         }
         // если мы выбрали улучшенное решение
         if (if_we_get_advanced) {
-            m_route_final = new M_route(m_route_advanced.getM_route());
+            m_route_final = new M_route(getM_route_advanced().getM_route());
         } else { // если мы выбрали базовое решение
-            m_route_final = new M_route(m_route_basic.getM_route());
+            m_route_final = new M_route(getM_route_basic().getM_route());
         }
 
         // здесь будет логика построения
@@ -274,7 +274,7 @@ public class Solution {
                 }
             }
         }
-        return m_route_final.getM_route();
+        return m_route_final;
     }
 
     /**
@@ -391,66 +391,5 @@ public class Solution {
                     .append(">>>F(final) = ").append(getF_final()).append("\n\n");
         }
         return str.toString();
-    }
-}
-
-
-class DWithVU implements Comparable<DWithVU> {
-    private int v;
-    private int u;
-    private int d;
-
-    public DWithVU(int v, int u, int d) {
-        this.v = v;
-        this.d = d;
-        this.u = u;
-    }
-
-    public void setV(int v) {
-        this.v = v;
-    }
-
-    public void setU(int u) {
-        this.u = u;
-    }
-
-    public void setD(int d) {
-        this.d = d;
-    }
-
-    public int getU() {
-        return u;
-    }
-
-    public int getD() {
-        return d;
-    }
-
-    public int getV() {
-        return v;
-    }
-
-    @Override
-    public String toString() {
-        return "v=" + v +
-                ", u=" + u +
-                ", d=" + d;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        DWithVU dWithVU = (DWithVU) o;
-        return v == dWithVU.v && u == dWithVU.u && d == dWithVU.d;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(v, u, d);
-    }
-
-    @Override
-    public int compareTo(DWithVU other) {
-        return Integer.compare(this.d, other.d);
     }
 }
