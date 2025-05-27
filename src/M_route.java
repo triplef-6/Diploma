@@ -32,6 +32,26 @@ public class M_route {
         return F;
     }
 
+    public DWithVU getBiggestDFromH(int H_i, Task task) {
+        DWithVU d_max = new DWithVU(m_route.get(H_i).get(1),
+                m_route.get(H_i).get(2),
+                task.getD(m_route.get(H_i).get(1), m_route.get(H_i).get(2)));
+        if (m_route.get(H_i).size() > 4) {
+            for (int i = 2; i <= m_route.get(H_i).size() - 2; i++) {
+                DWithVU d = new DWithVU(m_route.get(H_i).get(i), m_route.get(H_i).get(i + 1),
+                        task.getD(m_route.get(H_i).get(i),
+                                m_route.get(H_i).get(i + 1)));
+                if (d_max.getD() < d.getD()) {
+                    d_max.setV(d.getV());
+                    d_max.setU(d.getU());
+                    d_max.setD(d.getD());
+                }
+            }
+        }
+
+        return d_max;
+    }
+
     public List<Integer> getH(int i) {
         return m_route.get(i);
     }
