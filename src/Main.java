@@ -1,6 +1,6 @@
 public class Main {
     public static void main(String[] args) {
-        Task task0 = new Task(500, 1, 1500, 5, 1500);
+        Task task0 = new Task(300, 1, 1500, 5, 1500);
         Solution solution = new Solution(task0);
 
         System.out.println(task0);
