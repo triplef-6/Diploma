@@ -37,7 +37,7 @@ public class M_route {
                 m_route.get(H_i).get(2),
                 task.getD(m_route.get(H_i).get(1), m_route.get(H_i).get(2)));
         if (m_route.get(H_i).size() > 4) {
-            for (int i = 2; i <= m_route.get(H_i).size() - 2; i++) {
+            for (int i = 2; i <= m_route.get(H_i).size() - 3; i++) {
                 DWithVU d = new DWithVU(m_route.get(H_i).get(i), m_route.get(H_i).get(i + 1),
                         task.getD(m_route.get(H_i).get(i),
                                 m_route.get(H_i).get(i + 1)));
