@@ -267,7 +267,7 @@ public class Solution {
                                         H_with_the_heaviest_d[1] + ", " +
                                         H_with_the_heaviest_d[2]);
                                 System.out.println(":F final " + m_route_final.getF(task));
-                                System.out.println(m_route_final);
+//                                System.out.println(m_route_final);
                             }
                         }
                     }
