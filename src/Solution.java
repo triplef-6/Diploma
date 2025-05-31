@@ -201,9 +201,9 @@ public class Solution {
                         if (admissibility[triplets[i][0]][triplets[i][1]] &&
                                 admissibility[triplets[i][2]][triplets[i][3]] &&
                                 admissibility[triplets[i][4]][triplets[i][5]]) {
-                            int sum_triple = task.getD(triplets[i][0], triplets[i][1]) +
-                                    task.getD(triplets[i][2], triplets[i][3]) +
-                                    task.getD(triplets[i][4], triplets[i][5]);
+                            int sum_triple = task.getD(v_i[triplets[i][0]], v_i[triplets[i][1]]) +
+                                    task.getD(v_i[triplets[i][2]], v_i[triplets[i][3]]) +
+                                    task.getD(v_i[triplets[i][4]], v_i[triplets[i][5]]);
                             if (i == 0) {
                                 improvement = sum_triple;
                             }
