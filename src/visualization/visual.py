@@ -1,0 +1,10 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("data.csv")
+plt.plot(df["Итерация"], df["Значение"], marker="o")
+plt.xlabel("Итерация")
+plt.ylabel("Значение")
+plt.title("Изменение данных")
+plt.grid(True)
+plt.show()

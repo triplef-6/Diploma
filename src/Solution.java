@@ -1,5 +1,7 @@
+import visualization.CSVWriter;
+
+import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Solution {
     private final Task task; // задача
@@ -84,7 +86,7 @@ public class Solution {
      * @param if_we_get_advanced true - если мы будем строить от улучшенного начального решения, false - если от базового 
      * @return финальное решение
      */
-    public M_route getM_route_final(double epsilon, boolean if_we_get_advanced) {
+    public M_route getM_route_final(double epsilon, boolean if_we_get_advanced) throws IOException {
         // если финальное решение уже построено
         if (m_route_final != null) {
             return m_route_final;
@@ -99,6 +101,7 @@ public class Solution {
         // здесь будет логика построения
         int improvement; // на сколько мы улучшаем финальный результат
         Record record = new Record(); // наилучшая тройка для улучшения
+        List<Integer> record_improvements = new ArrayList<>(); // список улучшений (записывается в файл для визуализации)
         do {
             record.reset();
             // поиск рекорда
@@ -229,8 +232,10 @@ public class Solution {
                 }
             }
 
-            //замена
+            record_improvements.add(record.getImprovement()); // данный для записи в файл
             System.out.println(record);
+
+            //замена
             if (record.getImprovement() != 0) {
                 // строим хвосты
                 Map<Integer, List<Integer>> H_new = new HashMap<>();
@@ -299,6 +304,9 @@ public class Solution {
                 }
             }
         } while (record.getImprovement() > epsilon);
+
+        CSVWriter.writeData("./src/visualization/data.csv", record_improvements);
+
         return m_route_final;
     }
 
