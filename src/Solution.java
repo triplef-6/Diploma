@@ -97,11 +97,11 @@ public class Solution {
         }
 
         // здесь будет логика построения
-        for (int e = 0; e < 5; e++) {
-
+        int improvement; // на сколько мы улучшаем финальный результат
+        Record record = new Record(); // наилучшая тройка для улучшения
+        do {
+            record.reset();
             // поиск рекорда
-            int improvement = 0; // на сколько мы улучшаем финальный результат
-            Record record = new Record(); // наилучшая тройка для улучшения
             for (int H_1 = 0; H_1 < m_route_final.size() - 2; H_1++) {
                 for (int H_2 = H_1 + 1; H_2 < m_route_final.size() - 1; H_2++) {
                     for (int H_3 = H_2 + 1; H_3 < m_route_final.size(); H_3++) { // проходимся по всем петлям
@@ -222,53 +222,6 @@ public class Solution {
                                         record.set(H_with_the_heaviest_d, v_i, triplets[min_triple], improvement);
                                     }
 
-                                    // замена
-                                    /*
-                                    if (min_triple != 0) { // если нам нужно что-то менять
-                                        // строим новые H из хвостов в соответствии с выбранной тройкой
-                                        List<Integer> H1_new = new ArrayList<>(H_new.get(triplets[min_triple][0]));
-                                        Collections.reverse(H_new.get(triplets[min_triple][1]));
-                                        H1_new.addAll(H_new.get(triplets[min_triple][1]));
-
-                                        List<Integer> H2_new = new ArrayList<>(H_new.get(triplets[min_triple][2]));
-                                        Collections.reverse(H_new.get(triplets[min_triple][3]));
-                                        H2_new.addAll(H_new.get(triplets[min_triple][3]));
-
-                                        List<Integer> H3_new = new ArrayList<>(H_new.get(triplets[min_triple][4]));
-                                        Collections.reverse(H_new.get(triplets[min_triple][5]));
-                                        H3_new.addAll(H_new.get(triplets[min_triple][5]));
-
-                                        // строим улучшение жадным алгоритмом
-                                        List<Integer> H1_new_advanced = greedy_Algorithm(H1_new);
-                                        if (F_H(H1_new_advanced) < F_H(H1_new)) {
-                                            m_route_final.setH(H_with_the_heaviest_d[0], H1_new_advanced);
-                                        } else {
-                                            m_route_final.setH(H_with_the_heaviest_d[0], H1_new);
-                                        }
-
-                                        List<Integer> H2_new_advanced = greedy_Algorithm(H2_new);
-                                        if (F_H(H2_new_advanced) < F_H(H2_new)) {
-                                            m_route_final.setH(H_with_the_heaviest_d[1], H2_new_advanced);
-                                        } else {
-                                            m_route_final.setH(H_with_the_heaviest_d[1], H2_new);
-                                        }
-
-                                        List<Integer> H3_new_advanced = greedy_Algorithm(H3_new);
-                                        if (F_H(H3_new_advanced) < F_H(H3_new)) {
-                                            m_route_final.setH(H_with_the_heaviest_d[2], H3_new_advanced);
-                                        } else {
-                                            m_route_final.setH(H_with_the_heaviest_d[2], H3_new);
-                                        }
-                                    }
-                                    // логи
-                                    System.out.println(":улучшение на " + improvement);
-                                    System.out.println(":меняем петли: " + H_with_the_heaviest_d[0] + ", " +
-                                            H_with_the_heaviest_d[1] + ", " +
-                                            H_with_the_heaviest_d[2]);
-                                    System.out.println(":F final " + m_route_final.getF(task));
-//                                System.out.println(m_route_final);
-
-                                     */
                                 }
                             }
                         }
@@ -345,7 +298,7 @@ public class Solution {
                     m_route_final.setH(record.getH_i()[2], H3_new);
                 }
             }
-        }
+        } while (record.getImprovement() > epsilon);
         return m_route_final;
     }
 

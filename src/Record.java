@@ -24,6 +24,13 @@ public class Record {
         this.triple = triple;
     }
 
+    public void reset() {
+        this.H_i = null;
+        this.v_i = null;
+        this.triple = null;
+        this.improvement = Integer.MIN_VALUE;
+    }
+
     public int[] getH_i() {
         return H_i;
     }
