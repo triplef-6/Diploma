@@ -1,5 +1,3 @@
-import visualization.CSVWriter;
-
 import java.io.IOException;
 import java.util.*;
 
@@ -101,7 +99,9 @@ public class Solution {
         // здесь будет логика построения
         int improvement; // на сколько мы улучшаем финальный результат
         Record record = new Record(); // наилучшая тройка для улучшения
-        List<Integer> record_improvements = new ArrayList<>(); // список улучшений (записывается в файл для визуализации)
+
+        List<Integer> history_record_improvements = new ArrayList<>(); // список улучшений (записывается в файл для визуализации)
+        List<Integer> history_F = new ArrayList<>();
         do {
             record.reset();
             // поиск рекорда
@@ -135,10 +135,8 @@ public class Solution {
                                     int[] sum_H = new int[6]; // сумма потребностей для каждого хвоста
 
                                     for (int i = 0; i < 3; i++) { // строим 6 хвостов и считаем сумму потребностей в них
-//                                        List<Integer> H_u_new = new ArrayList<>(); // хвост от верхней вершины
                                         sum_H[i] = 0;
 
-//                                        List<Integer> H_v_new = new ArrayList<>(); // хвост от нижней вершины
                                         sum_H[i + 3] = 0;
 
                                         // ищем индекс верхней вершины
@@ -153,7 +151,6 @@ public class Solution {
                                         // верхний хвост
                                         for (int j = 0; j <= uIndex; j++) {
                                             int v = m_route_final.getH(H_with_the_heaviest_d[i]).get(j);
-//                                            H_u_new.add(v);
                                             if (v != 0) {
                                                 sum_H[i] += task.getC(v);
                                             }
@@ -162,7 +159,6 @@ public class Solution {
                                         // нижний хвост
                                         for (int j = m_route_final.getH(H_with_the_heaviest_d[i]).size() - 1; j >= uIndex + 1; j--) {
                                             int v = m_route_final.getH(H_with_the_heaviest_d[i]).get(j);
-//                                            H_v_new.add(v);
                                             if (v != 0) {
                                                 sum_H[i + 3] += task.getC(v);
                                             }
@@ -232,7 +228,7 @@ public class Solution {
                 }
             }
 
-            record_improvements.add(record.getImprovement()); // данный для записи в файл
+            history_record_improvements .add(record.getImprovement()); // данный для записи в файл
             System.out.println(record);
 
             //замена
@@ -303,9 +299,12 @@ public class Solution {
                     m_route_final.setH(record.getH_i()[2], H3_new);
                 }
             }
+            history_F.add(m_route_final.getF(task));
         } while (record.getImprovement() > epsilon);
 
-        CSVWriter.writeData("./src/visualization/data.csv", record_improvements);
+
+        CSVWriter.writeData("./data/data_final_improvement.csv", history_record_improvements);
+        CSVWriter.writeData("./data/data_final_F.csv", history_F);
 
         return m_route_final;
     }

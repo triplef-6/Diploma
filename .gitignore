@@ -28,5 +28,4 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-/src/visualization/data.csv
-/src/data.csv
+/data/*
