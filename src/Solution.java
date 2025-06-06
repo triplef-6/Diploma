@@ -84,16 +84,16 @@ public class Solution {
      * @param if_we_get_advanced true - если мы будем строить от улучшенного начального решения, false - если от базового 
      * @return финальное решение
      */
-    public M_route getM_route_final(double epsilon, boolean if_we_get_advanced) throws IOException {
+    public M_route getM_route_final(double epsilon) throws IOException {
         // если финальное решение уже построено
         if (m_route_final != null) {
             return m_route_final;
         }
-        // если мы выбрали улучшенное решение
-        if (if_we_get_advanced) {
-            m_route_final = new M_route(getM_route_advanced().getM_route());
-        } else { // если мы выбрали базовое решение
+        // выбираем начальное решение с лучшим F
+        if (getF_basic() <= getF_advanced()) {
             m_route_final = new M_route(getM_route_basic().getM_route());
+        } else {
+            m_route_final = new M_route(getM_route_advanced().getM_route());
         }
 
         // здесь будет логика построения
