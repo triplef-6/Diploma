@@ -3,9 +3,8 @@ import java.util.*;
 
 public class Solution {
     private final Task task; // задача
-    private M_route  m_route_basic; // m-маршрут (начальное решение)
-    private M_route  m_route_advanced; // m-маршрут (улучшенное жадным алгоритмом)
-    private M_route  m_route_final; // m-маршрут (начальное решение + алгоритм улучшения)
+    private M_route m_route_basic; // m-маршрут (начальное решение)
+    private M_route m_route_final; // m-маршрут (начальное решение + алгоритм улучшения)
 
     public Solution(Task task) {
         this.task = task;
@@ -14,7 +13,7 @@ public class Solution {
     /**
      * @return начальное решение
      */
-    public M_route getM_route_basic() {
+    public M_route getM_route_basic(int iteration) {
         // если начальное решение уже построено
         if (m_route_basic != null) {
             return m_route_basic;
@@ -53,47 +52,31 @@ public class Solution {
             m_route_basic.addH(H); // добавляем петлю в m-маршрут
         }
 
-        return m_route_basic;
-    }
-
-    /**
-     * @return улучшенное начальное решение
-     */
-    public M_route getM_route_advanced() {
-        // если улучшенное начальное решение уже построено
-        if (m_route_advanced != null) {
-            return m_route_advanced;
-        }
-
-        // если начальное решение ещё не построено
-        // из него мы будем брать вершины в петлях и просто поменяем их порядок
-        if (m_route_basic == null) {
-            getM_route_basic();
-        }
-
-        m_route_advanced = new M_route();
+        // возможное улучшение жадным алгоритмом
+        M_route m_route_advanced = new M_route();
         for (List<Integer> H : m_route_basic.getM_route()) { // проходимся по каждой петле
             m_route_advanced.addH(greedy_Algorithm(H)); // используем для этого отдельную функцию
         }
+        if (m_route_advanced.getF(task) < m_route_basic.getF(task)) {
+            m_route_basic = m_route_advanced;
+        }
 
-        return m_route_advanced;
+        return m_route_basic;
     }
 
     /**
      * @param epsilon до какого придела улучшаем
      * @return финальное решение
      */
-    public M_route getM_route_final(double epsilon) throws IOException {
+    public M_route getM_route_final(double epsilon, int iteration) throws IOException {
         // если финальное решение уже построено
         if (m_route_final != null) {
             return m_route_final;
         }
-        // выбираем начальное решение с лучшим F
-        if (getF_basic() <= getF_advanced()) {
-            m_route_final = new M_route(getM_route_basic().getM_route());
-        } else {
-            m_route_final = new M_route(getM_route_advanced().getM_route());
+        if (m_route_basic == null) {
+            return null;
         }
+        this.m_route_final = new M_route(m_route_basic.getM_route());
 
         // здесь будет логика построения
         int improvement; // на сколько мы улучшаем финальный результат
@@ -301,8 +284,8 @@ public class Solution {
         } while (record.getImprovement() > epsilon);
 
 
-        CSVWriter.writeData("./data/data_final_improvement.csv", history_record_improvements);
-        CSVWriter.writeData("./data/data_final_F.csv", history_F);
+        CSVWriter.writeData("./data/data_final_improvement" + iteration + ".csv", history_record_improvements);
+        CSVWriter.writeData("./data/data_final_F" + iteration + ".csv", history_F);
 
         return m_route_final;
     }
@@ -345,25 +328,13 @@ public class Solution {
     /**
      * @return значения целевой функции для начального решения
      */
-    public int getF_basic() {
+    public Integer getF_basic() {
         // если начальное решение ещё не построено
         if (m_route_basic == null) {
-            getM_route_basic();
+            return null;
         }
 
         return m_route_basic.getF(task);
-    }
-
-    /**
-     * @return значения целевой функции для улучшенного начального решения
-     */
-    public int getF_advanced() {
-        // если начальное решение ещё не построено
-        if (m_route_advanced == null) {
-            getM_route_advanced();
-        }
-
-        return m_route_advanced.getF(task);
     }
 
     /**
@@ -407,12 +378,6 @@ public class Solution {
             str.append(">M route basic:\n")
                     .append(m_route_basic)
                     .append(">>>F(basic) = ").append(getF_basic()).append("\n\n");
-        }
-
-        if (m_route_advanced != null) {
-            str.append(">M route advanced:\n")
-                    .append(m_route_advanced)
-                    .append(">>>F(advanced) = ").append(getF_advanced()).append("\n\n");
         }
 
         if (m_route_final != null) {
