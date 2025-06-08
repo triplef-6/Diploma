@@ -15,6 +15,9 @@ public class Solution implements Comparable<Solution> {
      * @return начальное решение
      */
     public M_route getM_route_basic(int iteration) {
+        if (iteration < 0 || iteration >= task.getN()) {
+            throw new IllegalArgumentException("Недопустимое значение iteration!");
+        }
         // если начальное решение уже построено
         if (m_route_basic != null) {
             return m_route_basic;
@@ -36,9 +39,6 @@ public class Solution implements Comparable<Solution> {
 
             H.add(0); // добавляем базу в начало петли
 
-            if (iteration >= task.getN()) {
-                iteration = 1;
-            }
             int i = iteration;
             do { // обход будет идти, пока либо все вершины в K не будут посещены, либо грузоподъёмность во время обхода не станет меньше потребность любой из оставшихся вершин
                 if (iteration == 0) { // если мы выбрали изначальный метод построения
@@ -66,11 +66,11 @@ public class Solution implements Comparable<Solution> {
                 r_i -= task.getC(i); // вычитаем из грузоподъёмности при обходе потребность выбранной вершины
                 V.remove(i); // удаляем выбранную вершину из соотношения
 
-                if (i == task.getN() - 1) {
-                    i = 1;
-                } else {
-                    i++;
-                }
+                // if (i == task.getN() - 1) {
+                //     i = 1;
+                // } else {
+                //     i++;
+                // }
 
             } while (!V.isEmpty() && r_i >= Collections.min(V.values()));
 
