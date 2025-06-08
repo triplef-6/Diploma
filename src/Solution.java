@@ -81,7 +81,6 @@ public class Solution {
 
     /**
      * @param epsilon до какого придела улучшаем
-     * @param if_we_get_advanced true - если мы будем строить от улучшенного начального решения, false - если от базового 
      * @return финальное решение
      */
     public M_route getM_route_final(double epsilon) throws IOException {
