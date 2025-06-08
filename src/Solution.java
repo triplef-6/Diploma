@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.util.*;
 
-public class Solution {
+public class Solution implements Comparable<Solution> {
     private final Task task; // задача
     private M_route m_route_basic; // m-маршрут (начальное решение)
     private M_route m_route_final; // m-маршрут (начальное решение + алгоритм улучшения)
@@ -11,6 +11,7 @@ public class Solution {
     }
 
     /**
+     * @param iteration номер итерации начального решения (если 0 => построение с ориентацией на минимальные c)
      * @return начальное решение
      */
     public M_route getM_route_basic(int iteration) {
@@ -35,16 +36,42 @@ public class Solution {
 
             H.add(0); // добавляем базу в начало петли
 
+            if (iteration >= task.getN()) {
+                iteration = 1;
+            }
+            int i = iteration;
             do { // обход будет идти, пока либо все вершины в K не будут посещены, либо грузоподъёмность во время обхода не станет меньше потребность любой из оставшихся вершин
-                int i = -1;
-                for (Map.Entry<Integer, Integer> entry : V.entrySet()) { // берём пару вершины->потребность
-                    if (Objects.equals(Collections.min(V.values()), entry.getValue())) { // если у вершины минимальная потребность среди всех
-                        i = entry.getKey(); // берём номер этой вершины
+                if (iteration == 0) { // если мы выбрали изначальный метод построения
+                    for (Map.Entry<Integer, Integer> entry : V.entrySet()) { // берём пару вершины->потребность
+                        if (Objects.equals(Collections.min(V.values()), entry.getValue())) { // если у вершины минимальная потребность среди всех
+                            i = entry.getKey(); // берём номер этой вершины
+                        }
                     }
+                } else {
+                    int k = i + 1;
+                    boolean flag_find = true;
+                    do {
+                        if (V.get(k) != null && V.get(k) <= r_i) {
+                            i = k;
+                            flag_find = false;
+                        } else if (k == task.getN() - 1) {
+                            k = 1;
+                        } else {
+                            k++;
+                        }
+                    } while (flag_find && k != i);
                 }
+
                 H.add(i); // добавляем её в маршрут
                 r_i -= task.getC(i); // вычитаем из грузоподъёмности при обходе потребность выбранной вершины
                 V.remove(i); // удаляем выбранную вершину из соотношения
+
+                if (i == task.getN() - 1) {
+                    i = 1;
+                } else {
+                    i++;
+                }
+
             } while (!V.isEmpty() && r_i >= Collections.min(V.values()));
 
             H.add(0); // добавляем базу в конец петли
@@ -210,7 +237,7 @@ public class Solution {
             }
 
             history_record_improvements .add(record.getImprovement()); // данный для записи в файл
-            System.out.println(record);
+//            System.out.println(record);
 
             //замена
             if (record.getImprovement() != 0) {
@@ -386,5 +413,10 @@ public class Solution {
                     .append(">>>F(final) = ").append(getF_final()).append("\n\n");
         }
         return str.toString();
+    }
+
+    @Override
+    public int compareTo(Solution other) {
+        return Integer.compare(this.getF_final(), other.getF_final());
     }
 }
