@@ -292,8 +292,8 @@ public class Solution implements Comparable<Solution> {
         } while (record.getImprovement() > 1);
 
 
-        CSVWriter.writeData("./data/data_final_improvement" + iteration + ".csv", history_record_improvements);
-        CSVWriter.writeData("./data/data_final_F" + iteration + ".csv", history_F);
+        CSVWriter.writeData("./data/data_final_improvement.csv", history_record_improvements, iteration);
+        CSVWriter.writeData("./data/data_final_F.csv", history_F, iteration);
 
         return m_route_final;
     }

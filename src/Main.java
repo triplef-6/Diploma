@@ -9,8 +9,9 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Файл формата .csv: n,a_d,b_d,a_c,b_c,iteration1,iteration2,...\nВведите название файла> ");
-        String file = scanner.nextLine();
+        System.out.println("Файл формата .csv: n,a_d,b_d,a_c,b_c,iteration1,iteration2,...\nВведите номер файла> ");
+        String file = "./data/input" + scanner.nextLine() + ".csv";
+
 
         int n = 0, a_d = 0, b_d = 0, a_c = 0, b_c = 0;
         int[] iterations = new int[0];
