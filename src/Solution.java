@@ -61,13 +61,6 @@ public class Solution implements Comparable<Solution> {
                 H.add(i); // добавляем её в маршрут
                 r_i -= task.getC(i); // вычитаем из грузоподъёмности при обходе потребность выбранной вершины
                 V.remove(i); // удаляем выбранную вершину из соотношения
-
-                // if (i == task.getN() - 1) {
-                //     i = 1;
-                // } else {
-                //     i++;
-                // }
-
             } while (!V.isEmpty() && r_i >= Collections.min(V.values()));
 
             H.add(0); // добавляем базу в конец петли
@@ -88,14 +81,10 @@ public class Solution implements Comparable<Solution> {
     }
 
     /**
-     * @param epsilon до какого придела улучшаем
      * @return финальное решение
      */
     public M_route getM_route_final(int iteration) throws IOException {
-        if (m_route_basic == null) {
-            return null;
-        }
-        this.m_route_final = new M_route(m_route_basic.getM_route());
+        this.m_route_final = new M_route(getM_route_basic(iteration).getM_route());
 
         // здесь будет логика построения
         int improvement; // на сколько мы улучшаем финальный результат
