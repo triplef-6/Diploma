@@ -35,7 +35,7 @@ for i, source in enumerate(unique_sources):
         label=label
     )
 
-plt.title("Изменение целевой функции по исходам", fontsize=16, pad=20)
+plt.title("Изменение целевой функции по итерациям", fontsize=16, pad=20)
 plt.xlabel("Итерация", fontsize=14)
 plt.ylabel("Значение F", fontsize=14)
 plt.xticks(fontsize=12)
