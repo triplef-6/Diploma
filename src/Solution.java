@@ -29,45 +29,54 @@ public class Solution implements Comparable<Solution> {
 
         // строим m-маршрут
         for (int i_m = 0; i_m < task.getM(); i_m++) { // необходимо построить m петель H
-            List<Integer> H = new ArrayList<>(); // петля H
+            if (!V.isEmpty()) {
+                List<Integer> H = new ArrayList<>(); // петля H
 
-            int r_i = task.getR(); // грузоподъёмность во время обхода (изначально равно r, но потом уменьшается)
+                int r_i = task.getR(); // грузоподъёмность во время обхода (изначально равно r, но потом уменьшается)
 
-            H.add(0); // добавляем базу в начало петли
+                H.add(0); // добавляем базу в начало петли
 
-            int i = iteration;
-            do { // обход будет идти, пока либо все вершины в K не будут посещены, либо грузоподъёмность во время обхода не станет меньше потребность любой из оставшихся вершин
-                if (iteration == 0) { // если мы выбрали изначальный метод построения
-                    for (Map.Entry<Integer, Integer> entry : V.entrySet()) { // берём пару вершины->потребность
-                        if (Objects.equals(Collections.min(V.values()), entry.getValue())) { // если у вершины минимальная потребность среди всех
-                            i = entry.getKey(); // берём номер этой вершины
+                int i = iteration;
+                do
+                { // обход будет идти, пока либо все вершины в K не будут посещены, либо грузоподъёмность во время обхода не станет меньше потребность любой из оставшихся вершин
+                    if (iteration == 0) { // если мы выбрали изначальный метод построения
+                        for (Map.Entry<Integer, Integer> entry : V.entrySet()) { // берём пару вершины->потребность
+                            if (Objects.equals(Collections.min(V.values()), entry.getValue())) { // если у вершины минимальная потребность среди всех
+                                i = entry.getKey(); // берём номер этой вершины
+                            }
                         }
+                    } else {
+                        int k = i + 1;
+                        boolean flag_find = true;
+                        do {
+                            if (V.get(k) != null && V.get(k) <= r_i) {
+                                i = k;
+                                flag_find = false;
+                            } else if (k >= task.getN() - 1) {
+                                k = 1;
+                            } else {
+                                k++;
+                            }
+                        } while (flag_find && k != i);
                     }
-                } else {
-                    int k = i + 1;
-                    boolean flag_find = true;
-                    do {
-                        if (V.get(k) != null && V.get(k) <= r_i) {
-                            i = k;
-                            flag_find = false;
-                        } else if (k == task.getN() - 1) {
-                            k = 1;
-                        } else {
-                            k++;
-                        }
-                    } while (flag_find && k != i);
-                }
 
-                H.add(i); // добавляем её в маршрут
-                r_i -= task.getC(i); // вычитаем из грузоподъёмности при обходе потребность выбранной вершины
-                V.remove(i); // удаляем выбранную вершину из соотношения
-            } while (!V.isEmpty() && r_i >= Collections.min(V.values()));
+                    H.add(i); // добавляем её в маршрут
+                    r_i -= task.getC(i); // вычитаем из грузоподъёмности при обходе потребность выбранной вершины
+                    V.remove(i); // удаляем выбранную вершину из соотношения
+                } while (!V.isEmpty() && r_i >= Collections.min(V.values()));
 
-            H.add(0); // добавляем базу в конец петли
+                H.add(0); // добавляем базу в конец петли
 
-            m_route_basic.addH(H); // добавляем петлю в m-маршрут
+                m_route_basic.addH(H); // добавляем петлю в m-маршрут
+            } else {
+                break;
+            }
         }
 
+        if (!V.isEmpty()) {
+            System.out.print("Задача не может быть построена таким способом!!!");
+            return null;
+        }
         // возможное улучшение жадным алгоритмом
         M_route m_route_advanced = new M_route();
         for (List<Integer> H : m_route_basic.getM_route()) { // проходимся по каждой петле
@@ -84,6 +93,7 @@ public class Solution implements Comparable<Solution> {
      * @return финальное решение
      */
     public M_route getM_route_final(int iteration) throws IOException {
+        if (getM_route_basic(iteration) == null) return null;
         this.m_route_final = new M_route(getM_route_basic(iteration).getM_route());
 
         // здесь будет логика построения
@@ -292,8 +302,8 @@ public class Solution implements Comparable<Solution> {
         } while (record.getImprovement() > 1);
 
 
-        CSVWriter.writeData("./data/data_final_improvement.csv", history_record_improvements, iteration);
-        CSVWriter.writeData("./data/data_final_F.csv", history_F, iteration);
+        CSVWriter.writeData("./data/outputs/data_final_improvement.csv", history_record_improvements, iteration);
+        CSVWriter.writeData("./data/outputs/data_final_F.csv", history_F, iteration);
 
         return m_route_final;
     }

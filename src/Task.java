@@ -5,7 +5,7 @@ public class Task {
     private final int[][] D; // массив длинн ребёр графа К
     private final int[] C; // массив потребностей вершин графа К
     private final int r; // грузоподемность
-    private final int m; // количествово машин
+    private int m; // количествово машин
 
     /**
      * Конструктор задачи (он же генератор)
@@ -71,6 +71,13 @@ public class Task {
         this.D = D;
         this.C = C;
         this.r = r;
+    }
+
+    public void setM(int plus) {
+        if (m + plus > (n - 1) / 2) {
+            throw new IllegalArgumentException("Максимальное значение m " + (n - 1) / 2);
+        }
+        m += plus;
     }
 
     public int getN() {

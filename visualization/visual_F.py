@@ -2,7 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-file_path = "../data/data_final_F.csv"
+numberM = int(input("Введите m: "))
+
+file_path = "../data/outputs/ofM/data_final_F" + str(numberM) + ".csv"
 
 if not os.path.exists(file_path):
     print(f"Файл {file_path} не найден")
