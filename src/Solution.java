@@ -74,7 +74,7 @@ public class Solution implements Comparable<Solution> {
         }
 
         if (!V.isEmpty()) {
-            System.out.print("Задача не может быть построена таким способом!!!");
+            System.out.print("Задача не может быть построена таким способом!!!\n");
             return null;
         }
         // возможное улучшение жадным алгоритмом

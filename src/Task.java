@@ -41,8 +41,8 @@ public class Task {
         // создаём грузоподъёмность и ограничения на машины
         int[] C_ = Arrays.copyOf(C, C.length);
         Arrays.sort(C_);
-        this.r = C_[C_.length - 1] + C_[C_.length - 2] + 1;
-        this.m = sum_c / r + 1;
+        this.r = C_[C_.length - 1] + C_[C_.length - 2];
+        this.m = (sum_c + r - 1) / r; // целочисленное деление с округлением вверх
     }
 
     /**
@@ -74,7 +74,7 @@ public class Task {
     }
 
     public void setM(int plus) {
-        if (m + plus > (n - 1) / 2) {
+        if (plus < 0 || m + plus > (n - 1) / 2) {
             throw new IllegalArgumentException("Максимальное значение m " + (n - 1) / 2);
         }
         m += plus;
