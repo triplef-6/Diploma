@@ -7,13 +7,14 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Файл формата .csv: n,a_d,b_d,a_c,b_c,iteration1,iteration2,...\nВведите номер файла> ");
+        String fileNumber = scanner.nextLine();
+        String file = "./data/inputs/input" + fileNumber  + ".csv";
+
         System.out.println("Выполнять обход по всем m(0) или только по четырём(1)?");
         int ifAllM = scanner.nextInt();
         System.out.println("Выполнять обход по всем итерациям(0) или только пео тем, что в файле(1)?");
         int ifAllI = scanner.nextInt();
-        System.out.println("Файл формата .csv: n,a_d,b_d,a_c,b_c,iteration1,iteration2,...\nВведите номер файла> ");
-        String file = "./data/inputs/input" + scanner.nextLine() + ".csv";
-
 
         int n = 0, a_d = 0, b_d = 0, a_c = 0, b_c = 0;
         int[] iterations = new int[0];
