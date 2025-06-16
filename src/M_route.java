@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class M_route {
     private List<List<Integer>> m_route;
-    public Integer F;
+    private Integer F;
 
     public M_route() {
         this.m_route = new ArrayList<>();

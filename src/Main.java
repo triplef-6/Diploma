@@ -43,13 +43,15 @@ public class Main {
         Map<Integer, Solution> solutions = transitionOfM(task0, iterations, ifAllM, ifAllI);
         int minKey = -1;
 
-        Solution bestSol = Collections.min(solutions.values());
-        for (Map.Entry<Integer, Solution> entry : solutions.entrySet()) {
-            if (entry.getValue() == bestSol) {
-                minKey = entry.getKey();
+        if (!solutions.isEmpty()) {
+            Solution bestSol = Collections.min(solutions.values());
+            for (Map.Entry<Integer, Solution> entry : solutions.entrySet()) {
+                if (entry.getValue() == bestSol) {
+                    minKey = entry.getKey();
+                }
             }
+            System.out.println(":!!!Наилучшее решение: m = " + minKey + "\n" + bestSol);
         }
-        System.out.println(":!!!Наилучшее решение: m = " + minKey + "\n" + bestSol);
     }
 
     public static Map<Integer, Solution> transitionOfM(Task task, int[] iterations, int ifAllM, int ifAllI) throws IOException {
